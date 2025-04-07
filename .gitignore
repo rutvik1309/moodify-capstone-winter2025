@@ -1,0 +1,78 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+lerna-debug.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.log
+debug.log
+output.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor & IDE settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Coverage & Build
+coverage/
+dist/
+build/
+out/
+
+# PM2 logs
+.pm2/logs
+.pm2/pids
+.pm2/dump.pm2
+
+# Dependency directories
+jspm_packages/
+bower_components/
+
+# TypeScript
+*.tsbuildinfo
+*.tscache
+
+# Webpack & Parcel
+.cache/
+.parcel-cache/
+
+# Firebase
+.firebase/
+firestore.rules.bkp
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Miscellaneous
+*.bak
+*.swp
+*.swo
+*.swn
