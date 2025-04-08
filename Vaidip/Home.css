@@ -1,0 +1,156 @@
+/* src/components/Home.css */
+
+/* Global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Container for the entire home page */
+  .container {
+    background: white;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+  }
+  
+  h1 {
+    color: #333;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+  
+  h2 {
+    color: #4a90e2;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  /* Button styling */
+  button {
+    background-color: #ff6b81;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 10px;
+    outline: none;
+  }
+  
+  button:hover {
+    background-color: #f03e4e;
+    transform: translateY(-2px);
+  }
+  
+  button:active {
+    background-color: #f03e4e;
+    transform: translateY(0);
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Input box styling */
+  input[type="text"] {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    margin: 10px 0;
+    background-color: #f4f4f4;
+    box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  input[type="text"]:focus {
+    border-color: #4a90e2;
+    box-shadow: inset 0px 4px 10px rgba(0, 0, 0, 0.1), 0px 0px 5px rgba(74, 144, 226, 0.7);
+    outline: none;
+  }
+  
+  /* Playlist styling */
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 20px;
+  }
+  
+  li {
+    margin-bottom: 15px;
+    padding: 12px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  li:hover {
+    transform: translateY(-5px);
+  }
+  
+  a {
+    text-decoration: none;
+    color: #4a90e2;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-block;
+    transition: color 0.3s ease;
+  }
+  
+  a:hover {
+    color: #ff6b81;
+  }
+  
+  /* Message styling */
+  p {
+    font-size: 18px;
+    color: #ff4b5c;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  
+  /* Voice command button styles */
+  .voice-btn {
+    background-color: #00b894;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 10px;
+  }
+  
+  .voice-btn:hover {
+    background-color: #00a86b;
+    transform: translateY(-2px);
+  }
+  
+  .voice-btn:active {
+    background-color: #00a86b;
+    transform: translateY(0);
+  }
+  
+  .voice-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
