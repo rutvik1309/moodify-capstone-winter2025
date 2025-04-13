@@ -1,10 +1,9 @@
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); // ✅ Only declare once
 const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const playlistRoutes = require('./routes/playlistRoutes');
-const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -12,15 +11,14 @@ const PORT = process.env.PORT || 8000;
 
 // ✅ Proper CORS config
 const corsOptions = {
-    origin: ["https://moodify-ca.onrender.com", "http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  };
-  
-  app.use(cors(corsOptions));
-  app.options('*', cors(corsOptions));
-  
+  origin: ["https://moodify-ca.onrender.com", "http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(bodyParser.json());
 
