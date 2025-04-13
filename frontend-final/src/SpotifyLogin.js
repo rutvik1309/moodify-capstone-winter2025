@@ -3,7 +3,11 @@ import React from "react";
 
 const SpotifyLogin = () => {
   const CLIENT_ID = "cdea26e7b85149eeb1e02a6812690634";
-  const redirectUri = "https://moodify-ca.onrender.com/callback";
+  const REDIRECT_URI =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000/callback"
+    : "https://moodify-ca.onrender.com/callback";
+
 
   const SCOPES = [
     "user-read-email",
