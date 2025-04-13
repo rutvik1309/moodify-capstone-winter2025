@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./components/home";
-import VoiceCommand from "./components/voicecommand";
-import SpotifyLogin from "./components/SpotifyLogin"; // make sure no space!
-import Callback from "./components/Callback";
-import Recommendations from "./components/Recommendations"; 
-import Myplaylists from "./components/Myplaylists";
+import Home from "./home";
+import VoiceCommand from "./voicecommand";
+import SpotifyLogin from "./SpotifyLogin"; // make sure no space!
+import Callback from "./Callback";
+import Recommendations from "./Recommendations"; 
+import Myplaylists from "./Myplaylists";
 
 const App = () => {
   return (
