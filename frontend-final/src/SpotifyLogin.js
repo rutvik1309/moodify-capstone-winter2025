@@ -3,7 +3,7 @@ import React from "react";
 
 const SpotifyLogin = () => {
   const CLIENT_ID = "cdea26e7b85149eeb1e02a6812690634";
-  const REDIRECT_URI = "http://localhost:3000/callback";
+  const REDIRECT_URI = "REDIRECT_URI=http://localhost:3000/callback";
   const SCOPES = [
     "user-read-email",
     "user-read-private",
