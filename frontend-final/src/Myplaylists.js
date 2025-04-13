@@ -17,9 +17,13 @@ const MyPlaylists = () => {
           },
         });
 
-        setPlaylists(res.data || []);
+        console.log("🎧 Fetched playlists:", res.data);
+
+        // Ensure it's an array
+        setPlaylists(Array.isArray(res.data) ? res.data : []);
       } catch (error) {
         console.error("Error fetching user playlists:", error);
+        setPlaylists([]); // fallback
       } finally {
         setLoading(false);
       }
@@ -73,20 +77,30 @@ const MyPlaylists = () => {
               <h3>{playlist.name}</h3>
               <p><strong>Created:</strong> {formatDate(playlist.createdAt)}</p>
               <ul>
-                {playlist.songs.map((song, i) => (
-                  <li key={i}>
-                    <a href={song.url} target="_blank" rel="noopener noreferrer">
-                      {song.name} - {song.artist}
-                    </a>
-                  </li>
-                ))}
+                {Array.isArray(playlist.songs) && playlist.songs.length > 0 ? (
+                  playlist.songs.map((song, i) => (
+                    <li key={i}>
+                      <a href={song.url} target="_blank" rel="noopener noreferrer">
+                        {song.name} - {song.artist}
+                      </a>
+                    </li>
+                  ))
+                ) : (
+                  <li>No songs in this playlist.</li>
+                )}
               </ul>
-              <button onClick={() => handleDelete(playlist._id)} style={{ backgroundColor: '#dc3545', color: '#fff', padding: '5px 10px', border: 'none' }}>
+              <button
+                onClick={() => handleDelete(playlist._id)}
+                style={{ backgroundColor: '#dc3545', color: '#fff', padding: '5px 10px', border: 'none' }}
+              >
                 <span role="img" aria-label="delete">🗑️</span> Delete
               </button>
             </div>
           ))}
-          <button onClick={handleClearAll} style={{ backgroundColor: '#dc3545', color: '#fff', padding: '8px 15px', border: 'none', marginTop: '10px' }}>
+          <button
+            onClick={handleClearAll}
+            style={{ backgroundColor: '#dc3545', color: '#fff', padding: '8px 15px', border: 'none', marginTop: '10px' }}
+          >
             <span role="img" aria-label="clear">❌</span> Clear All
           </button>
         </>
