@@ -40,7 +40,8 @@ const Home = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setPlaylist(response.data.playlist.songs || []);
+      setPlaylist(response.data?.playlist?.songs || []);
+
       setMessage("");
     } catch (err) {
       console.error("Error generating playlist:", err);
