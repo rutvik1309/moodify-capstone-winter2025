@@ -11,7 +11,7 @@ const MyPlaylists = () => {
   useEffect(() => {
     const fetchUserPlaylists = async () => {
       try {
-        const res = await axios.get(`/api/playlist/user/${userId}`, {
+        const res = await axios.get(`https://moodify-capstone-winter2025.onrender.com/api/playlist/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -36,7 +36,7 @@ const MyPlaylists = () => {
 
   const handleDelete = async (playlistId) => {
     try {
-      await axios.delete(`/api/playlist/${playlistId}`, {
+      await axios.delete(`https://moodify-capstone-winter2025.onrender.com/api/playlist/${playlistId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPlaylists(playlists.filter((p) => p._id !== playlistId));
@@ -49,7 +49,7 @@ const MyPlaylists = () => {
     if (!window.confirm("Are you sure you want to delete all playlists?")) return;
 
     try {
-      await axios.delete(`/api/playlist/user/${userId}/clear`, {
+      await axios.delete(`https://moodify-capstone-winter2025.onrender.com/api/playlist/user/${userId}/clear`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPlaylists([]);
