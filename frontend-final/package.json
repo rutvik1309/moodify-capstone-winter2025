@@ -2,6 +2,7 @@
   "name": "moodify-frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://moodify-ca.onrender.com",
   "dependencies": {
     "serve": "^14.2.0",
     "axios": "^1.7.9",
