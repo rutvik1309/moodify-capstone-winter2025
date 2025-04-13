@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Home.css";
 import SpotifyPlayer from "./SpotifyPlayer";
+import { API_BASE_URL } from "./config";
 
 const Home = () => {
   const [mood, setMood] = useState("");
@@ -27,7 +28,7 @@ const Home = () => {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("user_id");
       const response = await axios.post(
-        "/api/playlist/generate",
+        `$https://moodify-backend.onrender.com/api/playlist/generate`,
         {
           name: `Moodify - ${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
           songs: [],
@@ -145,7 +146,7 @@ const Home = () => {
 
     try {
       await axios.post(
-        "/api/playlist/save",
+  `$https://moodify-backend.onrender.com/api/playlist/save`,
         {
           name: playlistName,
           songs: playlist,
