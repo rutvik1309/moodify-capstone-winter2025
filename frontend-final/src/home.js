@@ -28,7 +28,7 @@ const Home = () => {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("user_id");
       const response = await axios.post(
-        `https://moodify-backend.onrender.com/api/playlist/generate`,
+        `https://moodify-capstone-winter2025.onrender.com/api/playlist/generate`,
         {
           name: `Moodify - ${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
           songs: [],
@@ -146,7 +146,7 @@ const Home = () => {
 
     try {
       await axios.post(
-  `https://moodify-backend.onrender.com/api/playlist/save`,
+  `https://moodify-capstone-winter2025.onrender.com/api/playlist/save`,
         {
           name: playlistName,
           songs: playlist,
