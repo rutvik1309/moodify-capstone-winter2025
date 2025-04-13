@@ -3,7 +3,8 @@ import React from "react";
 
 const SpotifyLogin = () => {
   const CLIENT_ID = "cdea26e7b85149eeb1e02a6812690634";
-  const REDIRECT_URI = "https://moodify-ca.onrender.com";
+  const redirectUri = "https://moodify-ca.onrender.com/callback";
+
   const SCOPES = [
     "user-read-email",
     "user-read-private",
