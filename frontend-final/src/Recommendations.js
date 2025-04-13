@@ -1,4 +1,3 @@
-// src/components/Recommendations.js
 import React, { useEffect, useState } from "react";
 
 const Recommendations = () => {
@@ -12,79 +11,70 @@ const Recommendations = () => {
         setMessage("Please log in with Spotify first.");
         return;
       }
-  
+
       try {
         // Step 1: Fetch top tracks
         const topTracksRes = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=5", {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
-        const topTracksText = await topTracksRes.text();
-  
-        if (!topTracksRes.ok) {
-          console.error("❌ Top tracks fetch failed:", topTracksRes.status, topTracksText);
-          setMessage("Failed to fetch top tracks. Please make sure you’ve listened to songs on Spotify.");
+
+        const topTracksData = await topTracksRes.json();
+        const rawSeeds = topTracksData.items?.map((track) => track.id) || [];
+
+        if (rawSeeds.length === 0) {
+          setMessage("No top tracks found. Listen to more songs on Spotify.");
           return;
         }
-  
-        let topTracksData;
-        try {
-          topTracksData = JSON.parse(topTracksText);
-        } catch (jsonErr) {
-          console.error("❌ JSON parsing failed for top tracks:", jsonErr, topTracksText);
-          setMessage("Spotify returned unreadable data for top tracks.");
+
+        // Step 2: Validate usable seed tracks
+        const getValidSeeds = async (seeds) => {
+          const valid = [];
+          for (const id of seeds) {
+            const res = await fetch(
+              `https://api.spotify.com/v1/recommendations?seed_tracks=${id}&limit=1`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            const data = await res.json();
+            if (res.ok && data.tracks?.length > 0) valid.push(id);
+            if (valid.length >= 3) break;
+          }
+          return valid;
+        };
+
+        const validSeedTracks = await getValidSeeds(rawSeeds);
+        console.log("✅ Valid seeds:", validSeedTracks);
+
+        if (validSeedTracks.length === 0) {
+          setMessage("No valid top tracks for generating recommendations. Try again later.");
           return;
         }
-  
-        const seedTracks = topTracksData.items?.slice(0, 3).map((track) => track.id);
-        console.log("🎯 Seed tracks:", seedTracks);
-  
-        if (!seedTracks || seedTracks.length === 0) {
-          setMessage("No top tracks found to generate recommendations.");
-          return;
-        }
-  
-        // Step 2: Fetch recommendations
+
+        // Step 3: Fetch final recommendations
         const recRes = await fetch(
-          `https://api.spotify.com/v1/recommendations?seed_tracks=${seedTracks.join(",")}&limit=10`,
+          `https://api.spotify.com/v1/recommendations?seed_tracks=${validSeedTracks.join(",")}&limit=10`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-  
-        const recText = await recRes.text();
-  
+
         if (!recRes.ok) {
-          console.error("❌ Recommendations fetch failed:", recRes.status, recText);
-          setMessage("Failed to fetch recommendations. Your Spotify token might be expired.");
+          const text = await recRes.text();
+          console.error("❌ Recommendations failed:", text);
+          setMessage("Failed to load recommendations. Spotify token might be expired.");
           return;
         }
-  
-        if (!recText) {
-          console.warn("⚠️ Spotify recommendation response was empty.");
-          setMessage("Spotify returned no recommendations. Try again later.");
-          return;
-        }
-  
-        let recData;
-        try {
-          recData = JSON.parse(recText);
-        } catch (jsonErr) {
-          console.error("❌ JSON parsing failed for recommendations:", jsonErr, recText);
-          setMessage("Spotify returned unreadable data for recommendations.");
-          return;
-        }
-  
-        console.log("✅ Recommendations:", recData);
+
+        const recData = await recRes.json();
         setRecommendations(recData.tracks || []);
+        if (!recData.tracks || recData.tracks.length === 0) {
+          setMessage("No recommendations available at the moment.");
+        }
       } catch (err) {
-        console.error("💥 Unexpected error fetching recommendations:", err);
-        setMessage("Failed to load recommendations.");
+        console.error("💥 Unexpected error:", err);
+        setMessage("Error loading recommendations. Try refreshing.");
       }
     };
-  
+
     fetchRecommendations();
   }, []);
-  
-  
 
   return (
     <div style={{ padding: "20px" }}>
@@ -93,7 +83,12 @@ const Recommendations = () => {
       <ul>
         {recommendations.map((track) => (
           <li key={track.id} style={{ marginBottom: "10px" }}>
-            <img src={track.album.images[0]?.url} alt="cover" width="50" style={{ marginRight: "10px" }} />
+            <img
+              src={track.album.images[0]?.url}
+              alt="cover"
+              width="50"
+              style={{ marginRight: "10px", verticalAlign: "middle" }}
+            />
             <a
               href={track.external_urls.spotify}
               target="_blank"
