@@ -10,15 +10,15 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // ✅ Proper CORS config
-const corsOptions = {
-  origin: ["https://moodify-ca.onrender.com", "http://localhost:3000"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+app.use(cors({
+  origin: ['https://moodify-ca.onrender.com', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-};
+}));
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+
+
 
 app.use(bodyParser.json());
 
