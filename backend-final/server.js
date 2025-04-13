@@ -11,12 +11,14 @@ const PORT = process.env.PORT || 8000;
 
 // Middleware
 const corsOptions = {
-    origin: ['https://moodify-ca.onrender.com'],  // ✅ your frontend domain
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: ["https://moodify-ca.onrender.com", "http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   };
   
   app.use(cors(corsOptions));
+  
   
   
   
