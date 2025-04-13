@@ -9,34 +9,32 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Middleware
+// ✅ Proper CORS config
 const corsOptions = {
-    origin: ["https://moodify-ca.onrender.com", "http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  };
-  
-  app.use(cors(corsOptions));
-  app.options("*", cors(corsOptions));
-  
-  
-  
+  origin: ["https://moodify-ca.onrender.com", "http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // ✅ Preflight fix
+
 app.use(bodyParser.json());
 
-// Connect to MongoDB
+// ✅ Connect DB
 connectDB();
 
-// Routes
-app.use('/api/auth', authRoutes);              // ✅ /api/auth/...
-app.use('/api/playlist', playlistRoutes);      // ✅ /api/playlist/...
+// ✅ API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/playlist', playlistRoutes);
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// ✅ Default route (for Render health check)
+app.get("/", (req, res) => {
+  res.send("✅ Moodify backend is running!");
 });
 
-app.get("/", (req, res) => {
-    res.send("✅ Moodify backend is running!");
-  });
-  
+// ✅ Start server
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
