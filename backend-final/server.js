@@ -10,7 +10,14 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Middleware
-app.use(cors());
+app.use(
+    cors({
+      origin: ["https://moodify-ca.onrender.com", "http://localhost:3000"], //  frontend domain
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      credentials: true,
+    })
+  );
+  
 app.use(bodyParser.json());
 
 // Connect to MongoDB
