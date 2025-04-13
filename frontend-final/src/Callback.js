@@ -31,7 +31,7 @@ const Callback = () => {
         localStorage.setItem("spotify_user_id", spotifyUserId);
 
         // Step 2: Login or register to your backend
-        const moodifyRes = await axios.post("/api/auth/spotify-login", {
+        const moodifyRes = await axios.post("https://moodify-backend-7q1f.onrender.com/api/auth/spotify-login", {
           email,
           name: display_name || "Spotify User",
         });
