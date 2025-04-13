@@ -11,12 +11,13 @@ const PORT = process.env.PORT || 8000;
 
 // Middleware
 const corsOptions = {
-    origin: '*', // TEMP for testing – make sure to lock this down later
+    origin: ['https://moodify-ca.onrender.com'],  // ✅ your frontend domain
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   };
   
   app.use(cors(corsOptions));
+  
   
   
 app.use(bodyParser.json());
@@ -32,3 +33,8 @@ app.use('/api/playlist', playlistRoutes);      // ✅ /api/playlist/...
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
+app.get("/", (req, res) => {
+    res.send("✅ Moodify backend is running!");
+  });
+  
