@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Home.css";
 import SpotifyPlayer from "./SpotifyPlayer";
-import { API_BASE_URL } from "./config";
+
 
 const Home = () => {
   const [mood, setMood] = useState("");
