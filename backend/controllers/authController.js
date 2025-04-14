@@ -45,20 +45,11 @@ exports.exchangeSpotifyToken = async (req, res) => {
       }
     });
 
-    const { access_token, refresh_token, expires_in } = response.data;
-
-    if (!access_token) {
-      return res.status(400).json({ error: "No access token returned from Spotify" });
-    }
-
-    res.json({
-      access_token,
-      refresh_token,
-      expires_in
-    });
+    res.json(response.data); // ✅ includes access_token, refresh_token
   } catch (err) {
-    console.error("Token exchange failed:", err.response?.data || err.message);
+    console.error("Token exchange failed", err.response?.data || err);
     res.status(500).json({ error: "Token exchange failed" });
   }
 };
+
 

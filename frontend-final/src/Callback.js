@@ -24,8 +24,10 @@ const Callback = () => {
           code_verifier: codeVerifier
         });
 
-        const { access_token } = exchangeRes.data;
-        localStorage.setItem("spotify_token", access_token);
+        const { access_token, refresh_token } = exchangeRes.data;
+localStorage.setItem("spotify_token", access_token);
+localStorage.setItem("spotify_refresh_token", refresh_token);
+
         console.log("✅ Spotify Access Token:", access_token);
 
 

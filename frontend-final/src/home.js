@@ -3,6 +3,25 @@ import axios from "axios";
 import "./Home.css";
 import SpotifyPlayer from "./SpotifyPlayer";
 
+// ✅ Token refresh helper
+async function refreshSpotifyToken() {
+  const refreshToken = localStorage.getItem("spotify_refresh_token");
+
+  try {
+    const res = await axios.post("https://moodify-capstone-winter2025.onrender.com/api/auth/refresh-token", {
+      refresh_token: refreshToken,
+    });
+
+    const { access_token } = res.data;
+    localStorage.setItem("spotify_token", access_token);
+    return access_token;
+  } catch (err) {
+    console.error("Failed to refresh token:", err);
+    alert("Spotify session expired. Please log in again.");
+    window.location.href = "/";
+  }
+}
+
 
 const Home = () => {
   const [mood, setMood] = useState("");
@@ -23,10 +42,20 @@ const Home = () => {
     }
   }, []);
 
+  const ensureValidToken = async () => {
+    let token = localStorage.getItem("spotify_token");
+    // Optionally add logic to check expiry
+    if (!token || tokenIsExpired(token)) {
+      token = await refreshSpotifyToken();
+    }
+    return token;
+  };
+  
+
   const fetchPlaylist = async (mood) => {
     try {
       const token = localStorage.getItem("token");
-      const spotifyToken = localStorage.getItem("spotify_token");
+      const spotifyToken = await ensureValidToken(); // 🔥 uses fresh token if needed
       const userId = localStorage.getItem("user_id");
   
       const response = await axios.post(
@@ -118,6 +147,8 @@ const Home = () => {
       setMessage("Voice naming not supported or blocked.");
     }
   };
+
+  
 
   const playTrack = async (uri) => {
     const token = localStorage.getItem("spotify_token");
