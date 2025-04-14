@@ -8,9 +8,10 @@ async function refreshSpotifyToken() {
   const refreshToken = localStorage.getItem("spotify_refresh_token");
 
   try {
-    const res = await axios.post("https://moodify-capstone-winter2025.onrender.com/api/auth/refresh-token", {
-      refresh_token: refreshToken,
-    });
+    const res = await axios.post(
+      "https://moodify-capstone-winter2025.onrender.com/api/auth/refresh-token",
+      { refresh_token: refreshToken }
+    );
 
     const { access_token } = res.data;
     localStorage.setItem("spotify_token", access_token);
@@ -29,7 +30,7 @@ const Home = () => {
   const [playlistName, setPlaylistName] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isNaming, setIsNaming] = useState(false);
-  const [recommendations, setRecommendations] = useState([]) ;
+  const [recommendations, setRecommendations] = useState([]);
 
   const username = localStorage.getItem("username");
 
@@ -39,7 +40,7 @@ const Home = () => {
       alert("Spotify login failed. Please try again.");
       window.location.href = "/";
     }
-  }, []);
+  }, []); // Removed the extra closing brace here
 
   const ensureValidToken = async () => {
     let token = localStorage.getItem("spotify_token");
@@ -64,7 +65,7 @@ const Home = () => {
       const userId = localStorage.getItem("user_id");
 
       const response = await axios.post(
-        `https://moodify-capstone-winter2025.onrender.com/api/playlist/generate`,
+        "https://moodify-capstone-winter2025.onrender.com/api/playlist/generate",
         {
           name: `Moodify - ${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
           songs: [],
@@ -88,10 +89,14 @@ const Home = () => {
       setMessage(err.response?.data?.error || "Failed to generate playlist.");
     }
   };
-  
+
+  // Dummy classifyMood function for demonstration purposes.
+  // Replace this function with your actual implementation.
+  const classifyMood = async (transcript) => {
+    return transcript.trim();
+  };
 
   const startListening = () => {
-    recognition.onresult = async (event) => {
     try {
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -99,32 +104,44 @@ const Home = () => {
         setMessage("Speech recognition is not supported in your browser.");
         return;
       }
-  
+      
       const recognition = new SpeechRecognition();
       recognition.lang = "en-US";
-      recognition.start();
-  
+
       recognition.onstart = () => setIsListening(true);
-  
+
+      recognition.onresult = async (event) => {
+        const transcript = event.results[0][0].transcript;
+        setMood(transcript);
+
+        // ✅ Classify mood using your Python ML API
+        const predictedMood = await classifyMood(transcript);
+        if (!predictedMood) {
+          setMessage("Unable to determine mood. Try again.");
+          return;
+        }
+
+        fetchPlaylist(predictedMood);
+      };
+
       recognition.onerror = (event) => {
         console.error("Speech recognition error:", event);
         setMessage(`Speech recognition error: ${event.error}`);
       };
-  
+
       recognition.onend = () => setIsListening(false);
+
+      recognition.start();
     } catch (err) {
       console.error("Speech recognition failed:", err);
       setMessage("Speech recognition not supported or blocked.");
     }
   };
-  
-  
-  
-  
 
   const startNamingByVoice = () => {
     try {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         setMessage("Speech recognition is not supported in your browser.");
         return;
@@ -152,8 +169,6 @@ const Home = () => {
       setMessage("Voice naming not supported or blocked.");
     }
   };
-
-  
 
   const playTrack = async (uri) => {
     const token = localStorage.getItem("spotify_token");
@@ -188,7 +203,7 @@ const Home = () => {
 
     try {
       await axios.post(
-  `https://moodify-capstone-winter2025.onrender.com/api/playlist/save`,
+        "https://moodify-capstone-winter2025.onrender.com/api/playlist/save",
         {
           name: playlistName,
           songs: playlist,
@@ -208,79 +223,81 @@ const Home = () => {
       console.error("Failed to save playlist:", err);
       alert("Failed to save playlist.");
     }
-  }
   };
 
   const saveToSpotify = async () => {
     const token = localStorage.getItem("spotify_token");
     const spotifyUserId = localStorage.getItem("spotify_user_id");
-  
+
     if (!playlistName || playlist.length === 0) {
       alert("Please generate and name a playlist first.");
       return;
     }
-  
+
     // 🔍 Log here
     console.log("🎵 Playlist being sent to Spotify:", playlist);
-  
-    const uris = playlist
-  .map((track) => {
-    const match = track.url?.match(/track\/([a-zA-Z0-9]+)/);
-    return match ? `spotify:track:${match[1]}` : null;
-  })
-  .filter(Boolean);
 
-  
+    const uris = playlist
+      .map((track) => {
+        const match = track.url?.match(/track\/([a-zA-Z0-9]+)/);
+        return match ? `spotify:track:${match[1]}` : null;
+      })
+      .filter(Boolean);
+
     // 🔍 Log URIs
     console.log("🎯 Extracted URIs:", uris);
-  
+
     if (uris.length === 0) {
       alert("No valid tracks to add. Please regenerate playlist.");
       return;
     }
-  
+
     try {
       // Step 1: Create the playlist
-      const createRes = await fetch(`https://api.spotify.com/v1/users/${spotifyUserId}/playlists`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: playlistName,
-          description: "Created with Moodify 🎵",
-          public: false,
-        }),
-      });
-  
+      const createRes = await fetch(
+        `https://api.spotify.com/v1/users/${spotifyUserId}/playlists`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: playlistName,
+            description: "Created with Moodify 🎵",
+            public: false,
+          }),
+        }
+      );
+
       const created = await createRes.json();
-  
+
       if (!createRes.ok || !created.id) {
         console.error("Spotify playlist creation failed:", created);
         alert("Spotify playlist creation failed.");
         return;
       }
-  
+
       // Step 2: Add tracks
-      await fetch(`https://api.spotify.com/v1/playlists/${created.id}/tracks`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ uris }),
-      });
-  
+      await fetch(
+        `https://api.spotify.com/v1/playlists/${created.id}/tracks`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ uris }),
+        }
+      );
+
       alert("✅ Playlist saved to your Spotify account!");
       window.open(created.external_urls?.spotify || "https://open.spotify.com", "_blank");
-  
     } catch (err) {
       console.error("❌ Failed to sync to Spotify:", err);
       alert("Failed to save playlist to Spotify.");
     }
   };
-  
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -339,7 +356,14 @@ const Home = () => {
       {message && <p>{message}</p>}
       <ul>
         {playlist.map((track, index) => (
-          <li key={index} style={{ marginBottom: "12px", display: "flex", alignItems: "center" }}>
+          <li
+            key={index}
+            style={{
+              marginBottom: "12px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             {track.albumImage && (
               <img
                 src={track.albumImage}
@@ -371,160 +395,171 @@ const Home = () => {
       </ul>
 
       {playlist.length > 0 && (
-  <>
-    <input
-      type="text"
-      placeholder="Custom Playlist Name (optional)"
-      value={playlistName}
-      onChange={(e) => setPlaylistName(e.target.value)}
-      style={{ marginTop: "10px", padding: "8px", width: "80%" }}
-    />
-    <button
-      onClick={startNamingByVoice}
-      disabled={isNaming}
-      style={{ marginLeft: "10px", padding: "8px" }}
-    >
-      🎤 {isNaming ? "Listening..." : "Name by Voice"}
-    </button>
+        <>
+          <input
+            type="text"
+            placeholder="Custom Playlist Name (optional)"
+            value={playlistName}
+            onChange={(e) => setPlaylistName(e.target.value)}
+            style={{ marginTop: "10px", padding: "8px", width: "80%" }}
+          />
+          <button
+            onClick={startNamingByVoice}
+            disabled={isNaming}
+            style={{ marginLeft: "10px", padding: "8px" }}
+          >
+            🎤 {isNaming ? "Listening..." : "Name by Voice"}
+          </button>
 
-    <br />
-    <button onClick={savePlaylist} style={{ marginTop: "10px" }}>
-      <span role="img" aria-label="save">💾</span> Save this Playlist
-    </button>
+          <br />
+          <button onClick={savePlaylist} style={{ marginTop: "10px" }}>
+            <span role="img" aria-label="save">
+              💾
+            </span>{" "}
+            Save this Playlist
+          </button>
 
-    <br />
-    <button onClick={saveToSpotify} style={{ marginTop: "10px" }}>
-      💚 Save to Spotify
-    </button>
-  </>
-)}
+          <br />
+          <button onClick={saveToSpotify} style={{ marginTop: "10px" }}>
+            💚 Save to Spotify
+          </button>
+        </>
+      )}
 
+      <h3>Recommended for You</h3>
+      <button
+        onClick={async () => {
+          try {
+            const token = localStorage.getItem("spotify_token");
 
+            // ✅ New validation logic: test each track with /recommendations
+            const getValidSeedTracks = async (trackIds, token) => {
+              const valid = [];
 
-<h3>Recommended for You</h3>
-<button
-  onClick={async () => {
-    try {
-      const token = localStorage.getItem("spotify_token");
-  
-      // ✅ New validation logic: test each track with /recommendations
-      const getValidSeedTracks = async (trackIds, token) => {
-        const valid = [];
-  
-        for (const id of trackIds) {
-          const res = await fetch(
-            `https://api.spotify.com/v1/recommendations?seed_tracks=${id}&limit=1`,
-            {
+              for (const id of trackIds) {
+                const res = await fetch(
+                  `https://api.spotify.com/v1/recommendations?seed_tracks=${id}&limit=1`,
+                  {
+                    headers: { Authorization: `Bearer ${token}` },
+                  }
+                );
+
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data.tracks && data.tracks.length > 0) {
+                    valid.push(id);
+                  } else {
+                    console.warn(`⚠️ No recommendations for seed track: ${id}`);
+                  }
+                } else {
+                  console.warn(`❌ Track not valid for recommendations: ${id} - Status ${res.status}`);
+                }
+
+                if (valid.length >= 3) break; // Spotify allows max 5 seeds, we limit to 3
+              }
+
+              return valid;
+            };
+
+            // Step 1: Get user's top tracks
+            const topTracksRes = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=5", {
               headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-  
-          if (res.ok) {
-            const data = await res.json();
-            if (data.tracks && data.tracks.length > 0) {
-              valid.push(id);
-            } else {
-              console.warn(`⚠️ No recommendations for seed track: ${id}`);
-            }
-          } else {
-            console.warn(`❌ Track not valid for recommendations: ${id} - Status ${res.status}`);
-          }
-  
-          if (valid.length >= 3) break; // Spotify allows max 5 seeds, we limit to 3
-        }
-  
-        return valid;
-      };
-  
-      // Step 1: Get user's top tracks
-      const topTracksRes = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=5", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
-      const topTracksText = await topTracksRes.text();
-  
-      if (!topTracksRes.ok) {
-        console.error("❌ Top tracks fetch failed:", topTracksRes.status, topTracksText);
-        setMessage("Failed to fetch top tracks.");
-        return;
-      }
-  
-      let topTracksData;
-      try {
-        topTracksData = JSON.parse(topTracksText);
-      } catch (e) {
-        console.error("❌ Failed to parse top tracks JSON:", e, topTracksText);
-        setMessage("Error parsing top tracks from Spotify.");
-        return;
-      }
-  
-      const rawSeedTracks = topTracksData.items?.map((track) => track.id) || [];
-      console.log("🎯 Raw seed tracks:", rawSeedTracks);
-  
-      if (rawSeedTracks.length === 0) {
-        setMessage("No top tracks found. Please listen to more songs on Spotify.");
-        return;
-      }
-  
-      // Step 2: Validate recommendation capability
-      const validSeedTracks = await getValidSeedTracks(rawSeedTracks, token);
-      console.log("✅ Valid recommendation seeds:", validSeedTracks);
-  
-      if (validSeedTracks.length === 0) {
-        setMessage("No valid tracks found for recommendations. Try listening to more music on Spotify.");
-        return;
-      }
-  
-      // Step 3: Fetch recommendations
-      const recRes = await fetch(
-        `https://api.spotify.com/v1/recommendations?seed_tracks=${validSeedTracks.join(",")}&limit=10`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-  
-      const recText = await recRes.text();
-  
-      if (!recRes.ok) {
-        console.error("❌ Recommendations fetch failed:", recRes.status, recText);
-        setMessage("Failed to fetch recommendations.");
-        return;
-      }
-  
-      let recData;
-      try {
-        recData = JSON.parse(recText);
-      } catch (e) {
-        console.error("❌ Failed to parse recommendations JSON:", e, recText);
-        setMessage("Error parsing recommendations from Spotify.");
-        return;
-      }
-  
-      console.log("🎁 Final Recommendations:", recData);
-  
-      setRecommendations(
-        Array.isArray(recData.tracks)
-          ? recData.tracks.map((track) => ({
-              name: track.name,
-              artist: track.artists[0]?.name || "Unknown",
-              albumImage: track.album.images[0]?.url || "",
-              url: track.external_urls.spotify,
-              spotify_uri: track.uri,
-            }))
-          : []
-      );
-    } catch (err) {
-      console.error("💥 Recommendation fetch failed:", err);
-      setMessage("Failed to fetch recommendations.");
-    }
-  }}
-  ><span role="img" aria-label="target">🎯</span> Show Personalized Recommendations
-  </button>
+            });
 
+            const topTracksText = await topTracksRes.text();
+
+            if (!topTracksRes.ok) {
+              console.error("❌ Top tracks fetch failed:", topTracksRes.status, topTracksText);
+              setMessage("Failed to fetch top tracks.");
+              return;
+            }
+
+            let topTracksData;
+            try {
+              topTracksData = JSON.parse(topTracksText);
+            } catch (e) {
+              console.error("❌ Failed to parse top tracks JSON:", e, topTracksText);
+              setMessage("Error parsing top tracks from Spotify.");
+              return;
+            }
+
+            const rawSeedTracks = topTracksData.items?.map((track) => track.id) || [];
+            console.log("🎯 Raw seed tracks:", rawSeedTracks);
+
+            if (rawSeedTracks.length === 0) {
+              setMessage("No top tracks found. Please listen to more songs on Spotify.");
+              return;
+            }
+
+            // Step 2: Validate recommendation capability
+            const validSeedTracks = await getValidSeedTracks(rawSeedTracks, token);
+            console.log("✅ Valid recommendation seeds:", validSeedTracks);
+
+            if (validSeedTracks.length === 0) {
+              setMessage("No valid tracks found for recommendations. Try listening to more music on Spotify.");
+              return;
+            }
+
+            // Step 3: Fetch recommendations
+            const recRes = await fetch(
+              `https://api.spotify.com/v1/recommendations?seed_tracks=${validSeedTracks.join(",")}&limit=10`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+
+            const recText = await recRes.text();
+
+            if (!recRes.ok) {
+              console.error("❌ Recommendations fetch failed:", recRes.status, recText);
+              setMessage("Failed to fetch recommendations.");
+              return;
+            }
+
+            let recData;
+            try {
+              recData = JSON.parse(recText);
+            } catch (e) {
+              console.error("❌ Failed to parse recommendations JSON:", e, recText);
+              setMessage("Error parsing recommendations from Spotify.");
+              return;
+            }
+
+            console.log("🎁 Final Recommendations:", recData);
+
+            setRecommendations(
+              Array.isArray(recData.tracks)
+                ? recData.tracks.map((track) => ({
+                    name: track.name,
+                    artist: track.artists[0]?.name || "Unknown",
+                    albumImage: track.album.images[0]?.url || "",
+                    url: track.external_urls.spotify,
+                    spotify_uri: track.uri,
+                  }))
+                : []
+            );
+          } catch (err) {
+            console.error("💥 Recommendation fetch failed:", err);
+            setMessage("Failed to fetch recommendations.");
+          }
+        }}
+      >
+        <span role="img" aria-label="target">
+          🎯
+        </span>{" "}
+        Show Personalized Recommendations
+      </button>
 
       <ul>
         {recommendations.map((track, index) => (
-          <li key={index} style={{ marginBottom: "12px", display: "flex", alignItems: "center" }}>
+          <li
+            key={index}
+            style={{
+              marginBottom: "12px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             {track.albumImage && (
               <img
                 src={track.albumImage}
@@ -541,13 +576,16 @@ const Home = () => {
                 rel="noopener noreferrer"
                 style={{ textDecoration: "none", color: "#1DB954" }}
               >
-                {track.name} <span style={{ color: "#555" }}>– {track.artist}</span>
+                {track.name}{" "}
+                <span style={{ color: "#555" }}>– {track.artist}</span>
               </a>
               {track.spotify_uri && (
                 <div>
                   <button onClick={() => playTrack(track.spotify_uri)} style={{ marginTop: "5px" }}>
-                  <span role="img" aria-label="target">▶️</span> Play in Moodify
-                   
+                    <span role="img" aria-label="target">
+                      ▶️
+                    </span>{" "}
+                    Play in Moodify
                   </button>
                 </div>
               )}
