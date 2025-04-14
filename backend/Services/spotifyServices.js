@@ -32,31 +32,25 @@ async function getSpotifyAccessToken() {
 
 const moodAudioMap = require("./utils/moodMap");
 
-async function getTracksByMood(mood) {
+async function getTracksByMood(mood, userToken) {
   try {
-    const token = await getSpotifyAccessToken();
-
-    const response = await axios.get("https://api.spotify.com/v1/search", {
-      headers: { Authorization: `Bearer ${token}` },
-      params: {
-        q: mood,
-        type: "track",
-        limit: 20,
-      },
+    // ✅ Use user token for both requests
+    const searchRes = await axios.get("https://api.spotify.com/v1/search", {
+      headers: { Authorization: `Bearer ${userToken}` },
+      params: { q: mood, type: "track", limit: 20 },
     });
 
-    const tracks = response.data.tracks.items;
+    const tracks = searchRes.data.tracks.items;
     if (!tracks.length) return [];
 
     const trackIds = tracks.map(t => t.id).join(",");
     const featuresRes = await axios.get("https://api.spotify.com/v1/audio-features", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${userToken}` },
       params: { ids: trackIds },
     });
 
     const audioFeatures = featuresRes.data.audio_features;
-    const moodMap = require("./utils/moodMap"); // 🔁 make sure path is correct!
-    const moodCriteria = moodMap[mood.toLowerCase()] || moodMap.default;
+    const moodCriteria = moodAudioMap[mood.toLowerCase()] || moodAudioMap.default;
 
     const filteredTracks = tracks.filter((track, index) => {
       const features = audioFeatures[index];
@@ -81,6 +75,7 @@ async function getTracksByMood(mood) {
     throw new Error("Failed to get mood-based tracks");
   }
 }
+
 module.exports = {
   getSpotifyAccessToken,
   getTracksByMood,

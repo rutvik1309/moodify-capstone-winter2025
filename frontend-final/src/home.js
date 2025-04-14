@@ -26,6 +26,7 @@ const Home = () => {
   const fetchPlaylist = async (mood) => {
     try {
       const token = localStorage.getItem("token");
+      const spotifyToken = localStorage.getItem("spotify_token");   // ✅ for Spotify API access
       const userId = localStorage.getItem("user_id");
       const response = await axios.post(
         `https://moodify-capstone-winter2025.onrender.com/api/playlist/generate`,
@@ -39,6 +40,7 @@ const Home = () => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
+          "x-spotify-token": spotifyToken 
         }
       );
       setPlaylist(response.data?.playlist?.songs || []);

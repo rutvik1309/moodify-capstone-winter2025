@@ -1,37 +1,31 @@
 const Playlist = require('../models/Playlist');
 const User = require('../models/user');
-const { getTracksByMood } = require('../Services/spotifyServices');
+const { getTracksByMood } = require("../Services/spotifyServices");
 
-// 🎵 Create Playlist (auto from mood)
 exports.createPlaylist = async (req, res) => {
-  const { mood, createdByVoice = false, voiceCommand = '' } = req.body;
-
   try {
-    const user = await User.findById(req.userId); // Comes from auth middleware
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    const { mood, name } = req.body;
+    const userId = req.userId;
+    const spotifyToken = req.headers.authorization?.split(" ")[1]; // from frontend header
 
-    const tracks = await getTracksByMood(mood);
-    console.log("✅ Final tracks being saved:", tracks); // Should include `spotify_uri`
+    const tracks = await getTracksByMood(mood, spotifyToken); // ✅ pass user token
 
-    const playlist = new Playlist({
-      name: `Moodify - ${mood}`,
+    const newPlaylist = new Playlist({
+      name,
       mood,
-      songs: tracks,
-      createdByVoice,
-      voiceCommand,
-      userId: req.userId, 
+      user: userId,
+      tracks,
+      createdAt: new Date(),
     });
 
-    await playlist.save();
-
-    res.status(201).json({ success: true, playlist });
+    await newPlaylist.save();
+    res.status(201).json(newPlaylist);
   } catch (error) {
-    console.error('Error creating playlist from Spotify:', error.message);
-    res.status(500).json({ error: 'Failed to generate playlist from Spotify' });
+    console.error("🔥 Error generating playlist:", error.message);
+    res.status(500).json({ error: "Failed to generate playlist" });
   }
 };
+
 
 
 // 💾 Save Playlist manually
