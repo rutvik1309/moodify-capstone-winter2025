@@ -97,6 +97,12 @@ const Home = () => {
   };
   
 
+  // Dummy classifyMood function for demonstration purposes.
+  // Replace this function with your actual implementation.
+  const classifyMood = async (transcript) => {
+    return transcript.trim();
+  };
+
   const startListening = () => {
     try {
       const SpeechRecognition =
