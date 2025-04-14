@@ -81,4 +81,8 @@ async function getTracksByMood(mood) {
     throw new Error("Failed to get mood-based tracks");
   }
 }
+module.exports = {
+  getSpotifyAccessToken,
+  getTracksByMood,
+};
 
