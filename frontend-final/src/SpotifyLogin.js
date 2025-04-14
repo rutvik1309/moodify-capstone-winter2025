@@ -8,16 +8,17 @@ const SpotifyLogin = () => {
       ? "http://localhost:3000/callback"
       : "https://moodify-ca.onrender.com/callback";
 
-  const SCOPES = [
-    "user-read-email",
-    "user-read-private",
-    "user-top-read",
-    "user-read-playback-state",
-    "user-modify-playback-state",
-    "streaming",
-    "playlist-modify-public",
-    "playlist-modify-private"
-  ];
+      const SCOPES = [
+        "user-read-email",
+        "user-read-private",
+        "user-top-read",
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "streaming",
+        "playlist-modify-public",
+        "playlist-modify-private"
+      ];
+      
 
   // 🔐 Generates a random code_verifier
   const generateCodeVerifier = (length = 128) => {
