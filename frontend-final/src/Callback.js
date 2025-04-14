@@ -7,30 +7,38 @@ const Callback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get("access_token");
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    const codeVerifier = localStorage.getItem("code_verifier");
 
-    if (!accessToken) {
-      alert("Spotify login failed.");
+    if (!code || !codeVerifier) {
+      alert("Missing authorization code or verifier. Please try logging in again.");
       return navigate("/");
     }
 
-    localStorage.setItem("spotify_token", accessToken);
-
-    const fetchSpotifyProfileAndLogin = async () => {
+    const exchangeToken = async () => {
       try {
-        // Step 1: Get Spotify user profile
+        // Step 1: Exchange code + verifier for access token
+        const exchangeRes = await axios.post("https://moodify-capstone-winter2025.onrender.com/api/auth/exchange-token", {
+          code,
+          code_verifier: codeVerifier
+        });
+
+        const { access_token } = exchangeRes.data;
+        localStorage.setItem("spotify_token", access_token);
+
+        // Step 2: Get user profile from Spotify
         const profileRes = await fetch("https://api.spotify.com/v1/me", {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${access_token}`,
           },
         });
+
         const profile = await profileRes.json();
         const { email, display_name, id: spotifyUserId } = profile;
-
         localStorage.setItem("spotify_user_id", spotifyUserId);
 
-        // Step 2: Login or register to your backend
+        // Step 3: Log in/register in Moodify backend
         const moodifyRes = await axios.post("https://moodify-capstone-winter2025.onrender.com/api/auth/spotify-login", {
           email,
           name: display_name || "Spotify User",
@@ -43,13 +51,13 @@ const Callback = () => {
 
         navigate("/home");
       } catch (err) {
-        console.error("⚠️ Spotify /me error (non-JSON):", err);
+        console.error("Authentication error:", err.response?.data || err);
         alert("Spotify authentication failed.");
         navigate("/");
       }
     };
 
-    fetchSpotifyProfileAndLogin();
+    exchangeToken();
   }, [navigate]);
 
   return <p style={{ textAlign: "center", color: "green" }}>Authenticating with Spotify...</p>;

@@ -5,5 +5,6 @@ const authController = require("../controllers/authController"); // ✅ Import y
 
 // ✅ Route for Spotify login
 router.post("/spotify-login", authController.spotifyLogin);
+router.post("/exchange-token", authController.exchangeSpotifyToken);
 
 module.exports = router;

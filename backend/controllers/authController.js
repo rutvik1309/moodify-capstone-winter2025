@@ -26,3 +26,26 @@ exports.spotifyLogin = async (req, res) => {
     res.status(500).json({ error: "Server error during login." });
   }
 };
+exports.exchangeSpotifyToken = async (req, res) => {
+  const { code, code_verifier } = req.body;
+  const redirect_uri = "https://moodify-ca.onrender.com/callback";
+
+  try {
+    const response = await axios.post("https://accounts.spotify.com/api/token", new URLSearchParams({
+      client_id: process.env.SPOTIFY_CLIENT_ID,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri,
+      code_verifier,
+    }), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    });
+
+    res.json(response.data); // includes access_token, refresh_token, etc.
+  } catch (err) {
+    console.error("Token exchange failed", err.response?.data || err);
+    res.status(500).json({ error: "Token exchange failed" });
+  }
+};
