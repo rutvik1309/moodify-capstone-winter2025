@@ -26,8 +26,9 @@ const Home = () => {
   const fetchPlaylist = async (mood) => {
     try {
       const token = localStorage.getItem("token");
-      const spotifyToken = localStorage.getItem("spotify_token");   // ✅ for Spotify API access
+      const spotifyToken = localStorage.getItem("spotify_token");
       const userId = localStorage.getItem("user_id");
+  
       const response = await axios.post(
         `https://moodify-capstone-winter2025.onrender.com/api/playlist/generate`,
         {
@@ -36,21 +37,24 @@ const Home = () => {
           mood,
           createdByVoice: false,
           voiceCommand: "",
-          userId
+          userId,
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
-          "x-spotify-token": spotifyToken,
+          headers: {
+            Authorization: `Bearer ${token}`,        // ✅ Moodify JWT
+            "x-spotify-token": spotifyToken,         // ✅ Now correctly inside headers
+          },
         }
       );
+  
       setPlaylist(response.data?.playlist?.songs || []);
-
       setMessage("");
     } catch (err) {
       console.error("Error generating playlist:", err);
       setMessage(err.response?.data?.error || "Failed to generate playlist.");
     }
   };
+  
 
   const startListening = () => {
     try {
