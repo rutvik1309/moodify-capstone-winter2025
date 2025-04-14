@@ -1,6 +1,8 @@
 // controllers/authController.js
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
+
 
 exports.spotifyLogin = async (req, res) => {
   const { email, name } = req.body;
