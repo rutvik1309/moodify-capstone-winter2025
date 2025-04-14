@@ -117,19 +117,18 @@ const Home = () => {
 
   const startListening = () => {
     try {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         setMessage("Speech recognition is not supported in your browser.");
         return;
       }
   
-      const recognition = new SpeechRecognition(); // <-- declare inside this function
+      const recognition = new SpeechRecognition(); // Declare here
       recognition.lang = "en-US";
       recognition.start();
+  
       recognition.onstart = () => setIsListening(true);
   
-      // ✅ Move async onresult here
       recognition.onresult = async (event) => {
         const transcript = event.results[0][0].transcript;
         setMood(transcript);
@@ -140,7 +139,7 @@ const Home = () => {
           return;
         }
   
-        fetchPlaylist(predictedMood); // 🎯 classified mood
+        fetchPlaylist(predictedMood); // Call playlist with ML mood
       };
   
       recognition.onerror = (event) => {
@@ -154,6 +153,7 @@ const Home = () => {
       setMessage("Speech recognition not supported or blocked.");
     }
   };
+  
   
   
 
