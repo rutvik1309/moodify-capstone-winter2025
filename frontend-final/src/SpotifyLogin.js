@@ -42,10 +42,13 @@ const SpotifyLogin = () => {
   };
 
   const handleLogin = async () => {
+    // ✅ Clear all old tokens from local storage
+    localStorage.clear();
+  
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
     localStorage.setItem("code_verifier", codeVerifier); // ✅ Store for use in callback
-
+  
     const args = new URLSearchParams({
       response_type: "code",
       client_id: CLIENT_ID,
@@ -54,9 +57,10 @@ const SpotifyLogin = () => {
       code_challenge_method: "S256",
       code_challenge: codeChallenge,
     });
-
+  
     window.location = `https://accounts.spotify.com/authorize?${args.toString()}`;
   };
+  
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
