@@ -22,7 +22,6 @@ async function refreshSpotifyToken() {
   }
 }
 
-
 const Home = () => {
   const [mood, setMood] = useState("");
   const [playlist, setPlaylist] = useState([]);
@@ -44,18 +43,26 @@ const Home = () => {
 
   const ensureValidToken = async () => {
     let token = localStorage.getItem("spotify_token");
+    const expiryTime = localStorage.getItem("spotify_token_expires_at");
+    const now = Date.now();
 
-  
+    if (!token || !expiryTime || now >= Number(expiryTime)) {
+      token = await refreshSpotifyToken();
+    }
     return token;
   };
-  
 
   const fetchPlaylist = async (mood) => {
+    if (!mood.trim()) {
+      setMessage("Please enter a mood first.");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
-      const spotifyToken = await ensureValidToken(); // 🔥 uses fresh token if needed
+      const spotifyToken = await ensureValidToken();
       const userId = localStorage.getItem("user_id");
-  
+
       const response = await axios.post(
         `https://moodify-capstone-winter2025.onrender.com/api/playlist/generate`,
         {
@@ -68,12 +75,12 @@ const Home = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,        // ✅ Moodify JWT
-            "x-spotify-token": spotifyToken,         // ✅ Now correctly inside headers
+            Authorization: `Bearer ${token}`,
+            "x-spotify-token": spotifyToken,
           },
         }
       );
-  
+
       setPlaylist(response.data?.playlist?.songs || []);
       setMessage("");
     } catch (err) {

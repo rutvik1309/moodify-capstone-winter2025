@@ -27,6 +27,10 @@ const Callback = () => {
         const { access_token, refresh_token } = exchangeRes.data;
 localStorage.setItem("spotify_token", access_token);
 localStorage.setItem("spotify_refresh_token", refresh_token);
+const expiresIn = exchangeRes.data.expires_in; // seconds
+const expiresAt = Date.now() + expiresIn * 1000; // milliseconds
+localStorage.setItem("spotify_token_expires_at", expiresAt.toString());
+
 
         console.log("✅ Spotify Access Token:", access_token);
 
