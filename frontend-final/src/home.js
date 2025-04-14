@@ -51,7 +51,32 @@ const Home = () => {
     }
     return token;
   };
-
+  const classifyMood = async (inputText) => {
+    try {
+      const res = await axios.post("https://moodify-ml.onrender.com/classify", {
+        text: inputText,
+      });
+      return res.data.predicted_mood; // Adjust this key based on Flask response
+    } catch (err) {
+      console.error("ML classification failed:", err);
+      return null;
+    }
+  };
+  
+  
+  recognition.onresult = async (event) => {
+    const transcript = event.results[0][0].transcript;
+    setMood(transcript);
+  
+    const predictedMood = await classifyMood(transcript);
+    if (!predictedMood) {
+      setMessage("Unable to determine mood. Try again.");
+      return;
+    }
+  
+    fetchPlaylist(predictedMood);
+  };
+  
   const fetchPlaylist = async (mood) => {
     if (!mood.trim()) {
       setMessage("Please enter a mood first.");
@@ -102,11 +127,21 @@ const Home = () => {
       recognition.lang = "en-US";
       recognition.start();
       recognition.onstart = () => setIsListening(true);
-      recognition.onresult = (event) => {
+  
+      // ✅ Moved this block INSIDE
+      recognition.onresult = async (event) => {
         const transcript = event.results[0][0].transcript;
         setMood(transcript);
-        fetchPlaylist(transcript);
+  
+        const predictedMood = await classifyMood(transcript);
+        if (!predictedMood) {
+          setMessage("Unable to determine mood. Try again.");
+          return;
+        }
+  
+        fetchPlaylist(predictedMood);
       };
+  
       recognition.onerror = (event) => {
         console.error("Speech recognition error:", event);
         if (event.error === "network") {
@@ -121,6 +156,7 @@ const Home = () => {
       setMessage("Speech recognition not supported or blocked.");
     }
   };
+  
 
   const startNamingByVoice = () => {
     try {

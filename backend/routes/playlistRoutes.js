@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../Middleware/authMiddleware');
 const playlistController = require('../controllers/playlistController');
+const moodController = require("../controllers/moodClassifierController");
 
 // 🎵 Generate a new playlist from mood
 router.post('/generate', authMiddleware, playlistController.createPlaylist);
@@ -17,5 +18,11 @@ router.delete('/:id', authMiddleware, playlistController.deletePlaylistById);
 
 // 🧹 Clear all playlists for a user
 router.delete('/user/:userId/clear', authMiddleware, playlistController.clearAllPlaylists);
+router.post("/classify-mood", moodController.classifyMood);
 
 module.exports = router;
+
+
+
+
+
