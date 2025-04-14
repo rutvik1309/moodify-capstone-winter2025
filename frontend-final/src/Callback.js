@@ -26,6 +26,8 @@ const Callback = () => {
 
         const { access_token } = exchangeRes.data;
         localStorage.setItem("spotify_token", access_token);
+        console.log("✅ Spotify Access Token:", access_token);
+
 
         // Step 2: Get user profile from Spotify
         const profileRes = await fetch("https://api.spotify.com/v1/me", {
