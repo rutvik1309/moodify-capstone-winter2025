@@ -44,10 +44,8 @@ const Home = () => {
 
   const ensureValidToken = async () => {
     let token = localStorage.getItem("spotify_token");
-    // Optionally add logic to check expiry
-    if (!token || tokenIsExpired(token)) {
-      token = await refreshSpotifyToken();
-    }
+
+  
     return token;
   };
   
