@@ -39,7 +39,7 @@ const Home = () => {
       alert("Spotify login failed. Please try again.");
       window.location.href = "/";
     }
-  }, []);
+  }, []) };
 
   const ensureValidToken = async () => {
     let token = localStorage.getItem("spotify_token");
@@ -50,20 +50,6 @@ const Home = () => {
       token = await refreshSpotifyToken();
     }
     return token;
-  };
-  const classifyMood = async (inputText) => {
-    try {
-      const res = await axios.post("https://moodify-ml.onrender.com/classify", {
-        text: inputText,
-      });
-      return res.data.predicted_mood; // Adjust this key based on Flask response
-    } catch (err) {
-      console.error("ML classification failed:", err);
-      return null;
-    }
-  };
-  
-    fetchPlaylist(predictedMood);
   };
   
   const fetchPlaylist = async (mood) => {
