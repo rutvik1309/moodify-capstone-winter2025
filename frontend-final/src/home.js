@@ -58,22 +58,27 @@ const Home = () => {
       setMessage("Please enter a mood first.");
       return;
     }
-
+  
     try {
       const token = localStorage.getItem("token");
       const spotifyToken = await ensureValidToken();
       const userId = localStorage.getItem("user_id");
-
+  
+      // Build the payload and log it for debugging purposes.
+      const payload = {
+        name: `Moodify - ${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
+        songs: [],
+        mood,
+        createdByVoice: false,
+        voiceCommand: "",
+        userId,
+      };
+  
+      console.log("Sending payload to generate playlist:", payload);
+  
       const response = await axios.post(
         "https://moodify-capstone-winter2025.onrender.com/api/playlist/generate",
-        {
-          name: `Moodify - ${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
-          songs: [],
-          mood,
-          createdByVoice: false,
-          voiceCommand: "",
-          userId,
-        },
+        payload,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -81,20 +86,16 @@ const Home = () => {
           },
         }
       );
-
+  
+      console.log("Playlist response:", response.data);
       setPlaylist(response.data?.playlist?.songs || []);
       setMessage("");
     } catch (err) {
-      console.error("Error generating playlist:", err);
+      console.error("Error generating playlist:", err.response || err);
       setMessage(err.response?.data?.error || "Failed to generate playlist.");
     }
   };
-
-  // Dummy classifyMood function for demonstration purposes.
-  // Replace this function with your actual implementation.
-  const classifyMood = async (transcript) => {
-    return transcript.trim();
-  };
+  
 
   const startListening = () => {
     try {
