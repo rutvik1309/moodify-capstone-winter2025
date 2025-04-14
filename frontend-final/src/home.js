@@ -63,17 +63,6 @@ const Home = () => {
     }
   };
   
-  
-  recognition.onresult = async (event) => {
-    const transcript = event.results[0][0].transcript;
-    setMood(transcript);
-  
-    const predictedMood = await classifyMood(transcript);
-    if (!predictedMood) {
-      setMessage("Unable to determine mood. Try again.");
-      return;
-    }
-  
     fetchPlaylist(predictedMood);
   };
   
@@ -116,6 +105,7 @@ const Home = () => {
   
 
   const startListening = () => {
+    recognition.onresult = async (event) => {
     try {
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
