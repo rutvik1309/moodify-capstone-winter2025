@@ -25,11 +25,11 @@ async function refreshSpotifyToken() {
 const Home = () => {
   const [mood, setMood] = useState("");
   const [playlist, setPlaylist] = useState([]);
-  const [recommendations, setRecommendations] = useState([]);
   const [message, setMessage] = useState("");
-  const [isListening, setIsListening] = useState(false);
   const [playlistName, setPlaylistName] = useState("");
+  const [isListening, setIsListening] = useState(false);
   const [isNaming, setIsNaming] = useState(false);
+  const [recommendations, setRecommendations] = useState([]) ;
 
   const username = localStorage.getItem("username");
 
@@ -39,7 +39,7 @@ const Home = () => {
       alert("Spotify login failed. Please try again.");
       window.location.href = "/";
     }
-  }, []) };
+  }, []);
 
   const ensureValidToken = async () => {
     let token = localStorage.getItem("spotify_token");
@@ -105,20 +105,6 @@ const Home = () => {
       recognition.start();
   
       recognition.onstart = () => setIsListening(true);
-  
-      recognition.onresult = async (event) => {
-        const transcript = event.results[0][0].transcript;
-        setMood(transcript);
-  
-        // ✅ Classify mood using your Python ML API
-        const predictedMood = await classifyMood(transcript);
-        if (!predictedMood) {
-          setMessage("Unable to determine mood. Try again.");
-          return;
-        }
-  
-        fetchPlaylist(predictedMood);
-      };
   
       recognition.onerror = (event) => {
         console.error("Speech recognition error:", event);
@@ -222,6 +208,7 @@ const Home = () => {
       console.error("Failed to save playlist:", err);
       alert("Failed to save playlist.");
     }
+  }
   };
 
   const saveToSpotify = async () => {
