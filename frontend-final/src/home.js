@@ -117,13 +117,14 @@ const Home = () => {
 
   const startListening = () => {
     try {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         setMessage("Speech recognition is not supported in your browser.");
         return;
       }
   
-      const recognition = new SpeechRecognition(); // Declare here
+      const recognition = new SpeechRecognition();
       recognition.lang = "en-US";
       recognition.start();
   
@@ -133,13 +134,14 @@ const Home = () => {
         const transcript = event.results[0][0].transcript;
         setMood(transcript);
   
+        // ✅ Classify mood using your Python ML API
         const predictedMood = await classifyMood(transcript);
         if (!predictedMood) {
           setMessage("Unable to determine mood. Try again.");
           return;
         }
   
-        fetchPlaylist(predictedMood); // Call playlist with ML mood
+        fetchPlaylist(predictedMood);
       };
   
       recognition.onerror = (event) => {
@@ -153,6 +155,7 @@ const Home = () => {
       setMessage("Speech recognition not supported or blocked.");
     }
   };
+  
   
   
   
