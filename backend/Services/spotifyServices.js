@@ -33,48 +33,52 @@ async function getSpotifyAccessToken() {
 const moodAudioMap = require("./utils/moodMap");
 
 async function getTracksByMood(mood) {
-  const token = await getSpotifyAccessToken();
+  try {
+    const token = await getSpotifyAccessToken();
 
-  // Step 1: Search for tracks
-  const response = await axios.get("https://api.spotify.com/v1/search", {
-    headers: { Authorization: `Bearer ${token}` },
-    params: {
-      q: mood,
-      type: "track",
-      limit: 20,
-    },
-  });
+    const response = await axios.get("https://api.spotify.com/v1/search", {
+      headers: { Authorization: `Bearer ${token}` },
+      params: {
+        q: mood,
+        type: "track",
+        limit: 20,
+      },
+    });
 
-  const tracks = response.data.tracks.items;
+    const tracks = response.data.tracks.items;
+    if (!tracks.length) return [];
 
-  // Step 2: Get audio features for those tracks
-  const trackIds = tracks.map(t => t.id).join(",");
-  const featuresRes = await axios.get("https://api.spotify.com/v1/audio-features", {
-    headers: { Authorization: `Bearer ${token}` },
-    params: { ids: trackIds },
-  });
+    const trackIds = tracks.map(t => t.id).join(",");
+    const featuresRes = await axios.get("https://api.spotify.com/v1/audio-features", {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { ids: trackIds },
+    });
 
-  const audioFeatures = featuresRes.data.audio_features;
-  const moodCriteria = moodAudioMap[mood.toLowerCase()] || moodAudioMap.default;
+    const audioFeatures = featuresRes.data.audio_features;
+    const moodMap = require("./utils/moodMap"); // 🔁 make sure path is correct!
+    const moodCriteria = moodMap[mood.toLowerCase()] || moodMap.default;
 
-  // Step 3: Filter tracks by mood
-  const filteredTracks = tracks.filter((track, index) => {
-    const features = audioFeatures[index];
-    return (
-      features &&
-      features.valence >= moodCriteria.valence[0] &&
-      features.valence <= moodCriteria.valence[1] &&
-      features.energy >= moodCriteria.energy[0] &&
-      features.energy <= moodCriteria.energy[1]
-    );
-  });
+    const filteredTracks = tracks.filter((track, index) => {
+      const features = audioFeatures[index];
+      return (
+        features &&
+        features.valence >= moodCriteria.valence[0] &&
+        features.valence <= moodCriteria.valence[1] &&
+        features.energy >= moodCriteria.energy[0] &&
+        features.energy <= moodCriteria.energy[1]
+      );
+    });
 
-  // Step 4: Map to frontend format
-  return filteredTracks.map(track => ({
-    name: track.name,
-    artist: track.artists[0]?.name || "Unknown",
-    albumImage: track.album.images[0]?.url || "",
-    url: track.external_urls.spotify,
-    spotify_uri: track.uri,
-  }));
+    return filteredTracks.map(track => ({
+      name: track.name,
+      artist: track.artists[0]?.name || "Unknown",
+      albumImage: track.album.images[0]?.url || "",
+      url: track.external_urls.spotify,
+      spotify_uri: track.uri,
+    }));
+  } catch (error) {
+    console.error("🔥 Error in getTracksByMood:", error?.response?.data || error.message);
+    throw new Error("Failed to get mood-based tracks");
+  }
 }
+
