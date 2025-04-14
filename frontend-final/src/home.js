@@ -40,7 +40,7 @@ const Home = () => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-          "x-spotify-token": spotifyToken 
+          "x-spotify-token": spotifyToken,
         }
       );
       setPlaylist(response.data?.playlist?.songs || []);

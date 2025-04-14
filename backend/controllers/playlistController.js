@@ -6,9 +6,17 @@ exports.createPlaylist = async (req, res) => {
   try {
     const { mood, name } = req.body;
     const userId = req.userId;
-    const spotifyToken = req.headers.authorization?.split(" ")[1]; // from frontend header
+    const spotifyToken = req.headers["x-spotify-token"];
 
-    const tracks = await getTracksByMood(mood, spotifyToken); // ✅ pass user token
+    if (!spotifyToken) {
+      console.error("❌ Missing Spotify token");
+      return res.status(400).json({ error: "Spotify token missing in request" });
+    }
+
+    console.log("🎯 Mood:", mood);
+    console.log("🔑 Spotify Token:", spotifyToken.slice(0, 20) + "...");
+
+    const tracks = await getTracksByMood(mood, spotifyToken);
 
     const newPlaylist = new Playlist({
       name,
@@ -25,6 +33,7 @@ exports.createPlaylist = async (req, res) => {
     res.status(500).json({ error: "Failed to generate playlist" });
   }
 };
+
 
 
 
