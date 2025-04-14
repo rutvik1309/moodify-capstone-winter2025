@@ -123,12 +123,13 @@ const Home = () => {
         setMessage("Speech recognition is not supported in your browser.");
         return;
       }
-      const recognition = new SpeechRecognition();
+  
+      const recognition = new SpeechRecognition(); // <-- declare inside this function
       recognition.lang = "en-US";
       recognition.start();
       recognition.onstart = () => setIsListening(true);
   
-      // ✅ Moved this block INSIDE
+      // ✅ Move async onresult here
       recognition.onresult = async (event) => {
         const transcript = event.results[0][0].transcript;
         setMood(transcript);
@@ -139,23 +140,21 @@ const Home = () => {
           return;
         }
   
-        fetchPlaylist(predictedMood);
+        fetchPlaylist(predictedMood); // 🎯 classified mood
       };
   
       recognition.onerror = (event) => {
         console.error("Speech recognition error:", event);
-        if (event.error === "network") {
-          setMessage("No internet connection. Please check and try again.");
-        } else {
-          setMessage(`Speech recognition error: ${event.error}`);
-        }
+        setMessage(`Speech recognition error: ${event.error}`);
       };
+  
       recognition.onend = () => setIsListening(false);
     } catch (err) {
       console.error("Speech recognition failed:", err);
       setMessage("Speech recognition not supported or blocked.");
     }
   };
+  
   
 
   const startNamingByVoice = () => {
