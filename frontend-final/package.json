@@ -2,7 +2,7 @@
   "name": "moodify-frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://moodify-i9qm.onrender.com",
+  "homepage": "https://moodify-i9qm.onrender.com/callback",
   "dependencies": {
     "serve": "^14.2.0",
     "axios": "^1.7.9",
