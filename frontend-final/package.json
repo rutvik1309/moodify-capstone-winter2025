@@ -17,8 +17,7 @@
   },
   "scripts": {
   "start": "serve -s build",
-  "build": "react-scripts build",
-  "build:legacy": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
+  "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
   "test": "react-scripts test",
   "eject": "react-scripts eject"
 },
