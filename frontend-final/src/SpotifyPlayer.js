@@ -1,4 +1,4 @@
-/* import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const SpotifyPlayer = () => {
   const [player, setPlayer] = useState(null);
@@ -72,6 +72,6 @@ const SpotifyPlayer = () => {
   );
 };
 
-export default SpotifyPlayer; */
+export default SpotifyPlayer;
 
 

@@ -6,7 +6,7 @@ const SpotifyLogin = () => {
   const REDIRECT_URI =
     window.location.hostname === "localhost"
       ? "http://localhost:3000/callback"
-      : "https://moodify-ca.onrender.com/callback";
+      : "https://moodify‑i9qm.onrender.com/callback";
 
       const SCOPES = [
         "user-read-email",
