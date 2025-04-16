@@ -77,16 +77,18 @@ async function getTracksByMood(mood, userToken) {
       url: track.external_urls.spotify,
       spotify_uri: track.uri,
     }));
-  } catch (error) {
+  }
+  catch (error) {
     console.error("🔥 Error in getTracksByMood:", error?.response?.data || error.message);
-
-    // 👇 Log full error headers if 403
+    console.error("🧨 Full error:", error);
+  
     if (error.response && error.response.status === 403) {
       console.error("🛑 Headers sent:", error.config.headers);
     }
-
+  
     throw new Error("Failed to get mood-based tracks");
   }
+  
 }
 
 
