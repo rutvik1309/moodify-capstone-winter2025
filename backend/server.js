@@ -39,6 +39,9 @@ app.get("/api/hello", (req, res) => {
 // --- Serving the React Frontend ---
 const buildPath = path.join(__dirname, "../frontend-final/build");
 app.use(express.static(buildPath));
+// Serve static files from /callback too
+app.use("/callback", express.static(buildPath));
+
 
 // --- Health Check Route ---
 app.get("/", (req, res) => {
