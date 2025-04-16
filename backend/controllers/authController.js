@@ -30,7 +30,7 @@ exports.spotifyLogin = async (req, res) => {
 };
 exports.exchangeSpotifyToken = async (req, res) => {
   const { code, code_verifier } = req.body;
-  const redirect_uri = "https://moodify-ca.onrender.com/callback";
+  const redirect_uri = "https://moodify-i9qm.onrender.com/callback";
 
   try {
     const response = await axios.post("https://accounts.spotify.com/api/token", new URLSearchParams({

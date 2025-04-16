@@ -9,7 +9,7 @@ async function refreshSpotifyToken() {
 
   try {
     const res = await axios.post(
-      "https://moodify-capstone-winter2025.onrender.com/api/auth/refresh-token",
+      "https://moodify-i9qm.onrender.com/api/auth/refresh-token",
       { refresh_token: refreshToken }
     );
 
@@ -77,7 +77,7 @@ const Home = () => {
       console.log("Sending payload to generate playlist:", payload);
   
       const response = await axios.post(
-        "https://moodify-capstone-winter2025.onrender.com/api/playlist/generate",
+        "https://moodify-i9qm.onrender.com/api/playlist/generate",
         payload,
         {
           headers: {
@@ -210,7 +210,7 @@ const Home = () => {
 
     try {
       await axios.post(
-        "https://moodify-capstone-winter2025.onrender.com/api/playlist/save",
+        "https://moodify-i9qm.onrender.com/api/playlist/save",
         {
           name: playlistName,
           songs: playlist,

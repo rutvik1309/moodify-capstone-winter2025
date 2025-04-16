@@ -19,7 +19,7 @@ const Callback = () => {
     const exchangeToken = async () => {
       try {
         // Step 1: Exchange code + verifier for access token
-        const exchangeRes = await axios.post("https://moodify-capstone-winter2025.onrender.com/api/auth/exchange-token", {
+        const exchangeRes = await axios.post("https://moodify-i9qm.onrender.com/api/auth/exchange-token", {
           code,
           code_verifier: codeVerifier
         });
@@ -47,7 +47,7 @@ localStorage.setItem("spotify_token_expires_at", expiresAt.toString());
         localStorage.setItem("spotify_user_id", spotifyUserId);
 
         // Step 3: Log in/register in Moodify backend
-        const moodifyRes = await axios.post("https://moodify-capstone-winter2025.onrender.com/api/auth/spotify-login", {
+        const moodifyRes = await axios.post("https://moodify-i9qm.onrender.com/api/auth/spotify-login", {
           email,
           name: display_name || "Spotify User",
         });
