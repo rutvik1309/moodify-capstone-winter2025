@@ -116,7 +116,7 @@ async function getTracksByMood(mood, userToken) {
 
     // Step 2: Get audio features for those tracks
     const trackIds = tracks.map(t => t.id).join(",");
-    const featuresRes = await axios.get("https://api.spotify.com/v1/audio-features", {
+    const featuresRes = await axios.get("https://api.spotify.com/v1/tracks", {
       headers: { Authorization: `Bearer ${userToken}` },
       params: { ids: trackIds },
     });
