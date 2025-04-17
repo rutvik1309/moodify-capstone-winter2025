@@ -1,10 +1,9 @@
-// controllers/authController.js
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 
-
-exports.spotifyLogin = async (req, res) => {
+// ✅ 1. Define the functions first
+const spotifyLogin = async (req, res) => {
   const { email, name } = req.body;
 
   try {
@@ -14,6 +13,7 @@ exports.spotifyLogin = async (req, res) => {
       user = new User({ email, username: name, provider: "spotify" });
       await user.save();
     }
+
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -28,7 +28,8 @@ exports.spotifyLogin = async (req, res) => {
     res.status(500).json({ error: "Server error during login." });
   }
 };
-exports.exchangeSpotifyToken = async (req, res) => {
+
+const exchangeSpotifyToken = async (req, res) => {
   const { code, code_verifier } = req.body;
 
   try {
@@ -52,10 +53,11 @@ exports.exchangeSpotifyToken = async (req, res) => {
     res.status(500).json({ error: "Spotify token exchange failed" });
   }
 };
+
+
+
+// ✅ 2. Export them properly
 module.exports = {
   spotifyLogin,
-  exchangeSpotifyToken, // ✅ Add this
+  exchangeSpotifyToken
 };
-
-
-
