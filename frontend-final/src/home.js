@@ -420,89 +420,106 @@ const Home = () => {
         </>
       )}
 
+<h3>Recommended for You</h3>
 <button
   onClick={async () => {
     try {
       const token = localStorage.getItem("spotify_token");
 
-      // 🎯 Step 1: Get top tracks
-      const topTracksRes = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=5", {
+      // Step 1: Get user's top tracks
+      const topTracksRes = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=10", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      const topTracksText = await topTracksRes.text();
+
       if (!topTracksRes.ok) {
-        console.error("❌ Top tracks fetch failed:", topTracksRes.status);
+        console.error("❌ Top tracks fetch failed:", topTracksRes.status, topTracksText);
         setMessage("Failed to fetch top tracks.");
         return;
       }
 
-      const topTracksData = await topTracksRes.json();
-      const rawTrackIds = topTracksData.items?.map((track) => track.id) || [];
-
-      if (rawTrackIds.length === 0) {
-        setMessage("No top tracks found. Try listening to more music on Spotify.");
+      let topTracksData;
+      try {
+        topTracksData = JSON.parse(topTracksText);
+      } catch (e) {
+        console.error("❌ Failed to parse top tracks JSON:", e, topTracksText);
+        setMessage("Error parsing top tracks from Spotify.");
         return;
       }
 
-      // ✅ Step 2: Validate which ones are usable for recommendations
-      const validTrackIds = [];
-      for (const id of rawTrackIds) {
-       // Step 3: Decide whether to use track or genre seed
-const isGenreSeed = validSeedTracks[0] && validSeedTracks[0].length <= 5;
+      const rawSeedTracks = topTracksData.items?.map((track) => track.id) || [];
+      console.log("🎯 Raw seed tracks:", rawSeedTracks);
 
-const url = isGenreSeed
-  ? `https://api.spotify.com/v1/recommendations?seed_genres=${validSeedTracks.join(",")}&limit=10`
-  : `https://api.spotify.com/v1/recommendations?seed_tracks=${validSeedTracks.join(",")}&limit=10`;
+      // Step 2: Validate each seed track using /recommendations
+      const validSeedTracks = [];
 
-console.log("📡 Final recommendation URL:", url);
+      for (const id of rawSeedTracks) {
+        const testRes = await fetch(
+          `https://api.spotify.com/v1/recommendations?seed_tracks=${id}&limit=1`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-const recRes = await fetch(url, {
-  headers: { Authorization: `Bearer ${token}` },
-});
-
-
-        if (res.ok) {
-          const json = await res.json();
-          if (json.tracks && json.tracks.length > 0) validTrackIds.push(id);
+        if (testRes.ok) {
+          const data = await testRes.json();
+          if (data.tracks?.length > 0) validSeedTracks.push(id);
         }
 
-        if (validTrackIds.length === 3) break;
+        if (validSeedTracks.length >= 3) break;
       }
 
-      // ✅ Step 3: Decide fallback or proceed
-      let recUrl = "";
+      console.log("✅ Valid recommendation seeds:", validSeedTracks);
 
-      if (validTrackIds.length > 0) {
-        recUrl = `https://api.spotify.com/v1/recommendations?seed_tracks=${validTrackIds.join(",")}&limit=10`;
-      } else {
-        // ⛑ Fallback using genre
-        recUrl = `https://api.spotify.com/v1/recommendations?seed_genres=pop,rock,hip-hop&limit=10`;
+      // Step 3: Use fallback genres if no valid tracks
+      if (validSeedTracks.length === 0) {
+        validSeedTracks.push("pop", "rock", "chill"); // fallback genres
       }
 
-      const recRes = await fetch(recUrl, {
+      // Step 4: Determine URL: genre or track seed
+      const isGenreSeed = validSeedTracks[0]?.length <= 5;
+      const url = isGenreSeed
+        ? `https://api.spotify.com/v1/recommendations?seed_genres=${validSeedTracks.join(",")}&limit=10`
+        : `https://api.spotify.com/v1/recommendations?seed_tracks=${validSeedTracks.join(",")}&limit=10`;
+
+      console.log("📡 Final recommendation URL:", url);
+
+      const recRes = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      const recText = await recRes.text();
+
       if (!recRes.ok) {
-        console.error("❌ Failed to fetch recommendations:", await recRes.text());
-        setMessage("Unable to fetch recommendations.");
+        console.error("❌ Recommendations fetch failed:", recRes.status, recText);
+        setMessage("Failed to fetch recommendations.");
         return;
       }
 
-      const recData = await recRes.json();
+      let recData;
+      try {
+        recData = JSON.parse(recText);
+      } catch (e) {
+        console.error("❌ Failed to parse recommendations JSON:", e, recText);
+        setMessage("Error parsing recommendations from Spotify.");
+        return;
+      }
 
       setRecommendations(
-        (recData.tracks || []).map((track) => ({
-          name: track.name,
-          artist: track.artists[0]?.name || "Unknown",
-          albumImage: track.album.images[0]?.url || "",
-          url: track.external_urls.spotify,
-          spotify_uri: track.uri,
-        }))
+        Array.isArray(recData.tracks)
+          ? recData.tracks.map((track) => ({
+              name: track.name,
+              artist: track.artists[0]?.name || "Unknown",
+              albumImage: track.album.images[0]?.url || "",
+              url: track.external_urls.spotify,
+              spotify_uri: track.uri,
+            }))
+          : []
       );
     } catch (err) {
-      console.error("💥 Error fetching personalized recommendations:", err);
-      setMessage("Something went wrong. Try again later.");
+      console.error("💥 Recommendation fetch failed:", err);
+      setMessage("Failed to fetch recommendations.");
     }
   }}
 >
