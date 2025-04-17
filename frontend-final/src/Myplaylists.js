@@ -77,12 +77,15 @@ const MyPlaylists = () => {
               <h3>{playlist.name}</h3>
               <p><strong>Created:</strong> {formatDate(playlist.createdAt)}</p>
               <ul>
-                {Array.isArray(playlist.songs) && playlist.songs.length > 0 ? (
-                  playlist.songs.map((song, i) => (
-                    <li key={i}>
-                      <a href={song.url} target="_blank" rel="noopener noreferrer">
-                        {song.name} - {song.artist}
-                      </a>
+  
+     
+
+              {Array.isArray(playlist.tracks) && playlist.tracks.length > 0 ? (
+    playlist.tracks.map((track, i) => (
+      <li key={i}>
+        <a href={track.url} target="_blank" rel="noopener noreferrer">
+          {track.name} - {track.artist}
+        </a>
                     </li>
                   ))
                 ) : (
