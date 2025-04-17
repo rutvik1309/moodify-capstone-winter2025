@@ -59,5 +59,6 @@ const exchangeSpotifyToken = async (req, res) => {
 // ✅ 2. Export them properly
 module.exports = {
   spotifyLogin,
-  exchangeSpotifyToken
+  exchangeSpotifyToken,
 };
+

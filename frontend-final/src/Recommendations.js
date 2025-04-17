@@ -26,20 +26,35 @@ const Recommendations = () => {
           return;
         }
 
-        // Step 2: Validate usable seed tracks
-        const getValidSeeds = async (seeds) => {
+        const getValidSeedTracks = async (trackIds, token) => {
           const valid = [];
-          for (const id of seeds) {
+        
+          for (const id of trackIds) {
             const res = await fetch(
               `https://api.spotify.com/v1/recommendations?seed_tracks=${id}&limit=1`,
-              { headers: { Authorization: `Bearer ${token}` } }
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
             );
-            const data = await res.json();
-            if (res.ok && data.tracks?.length > 0) valid.push(id);
-            if (valid.length >= 3) break;
+        
+            if (res.ok) {
+              const data = await res.json();
+              if (data.tracks && data.tracks.length > 0) {
+                valid.push(id);
+              }
+            }
+        
+            if (valid.length >= 3) break; // ✅ Limit to 3
           }
+        
+          // ✅ If no valid tracks, fallback to genres
+          if (valid.length === 0) {
+            return ["pop", "rock", "edm"]; // or any preferred genres
+          }
+        
           return valid;
         };
+        
 
         const validSeedTracks = await getValidSeeds(rawSeeds);
         console.log("✅ Valid seeds:", validSeedTracks);

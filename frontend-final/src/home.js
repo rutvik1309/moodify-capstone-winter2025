@@ -447,10 +447,19 @@ const Home = () => {
       // ✅ Step 2: Validate which ones are usable for recommendations
       const validTrackIds = [];
       for (const id of rawTrackIds) {
-        const res = await fetch(
-          `https://api.spotify.com/v1/recommendations?seed_tracks=${id}&limit=1`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+       // Step 3: Decide whether to use track or genre seed
+const isGenreSeed = validSeedTracks[0] && validSeedTracks[0].length <= 5;
+
+const url = isGenreSeed
+  ? `https://api.spotify.com/v1/recommendations?seed_genres=${validSeedTracks.join(",")}&limit=10`
+  : `https://api.spotify.com/v1/recommendations?seed_tracks=${validSeedTracks.join(",")}&limit=10`;
+
+console.log("📡 Final recommendation URL:", url);
+
+const recRes = await fetch(url, {
+  headers: { Authorization: `Bearer ${token}` },
+});
+
 
         if (res.ok) {
           const json = await res.json();
