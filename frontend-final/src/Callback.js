@@ -85,62 +85,61 @@ const Callback = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
     const codeVerifier = localStorage.getItem("code_verifier");
-
+  
     if (!code || !codeVerifier) {
       alert("Missing authorization code or verifier. Please try logging in again.");
       return navigate("/");
     }
-
+  
+    // ✅ Prevent duplicate execution (even during React StrictMode)
+    if (sessionStorage.getItem("token_exchanged")) return;
+  
     const exchangeToken = async () => {
       try {
+        sessionStorage.setItem("token_exchanged", "true"); // lock it
+  
         const exchangeRes = await axios.post("https://moodify-i9qm.onrender.com/api/auth/exchange-token", {
           code,
-          code_verifier: codeVerifier
+          code_verifier: codeVerifier,
         });
-
+  
         const { access_token, refresh_token, expires_in } = exchangeRes.data;
         const expiresAt = Date.now() + expires_in * 1000;
-
-        // ✅ Use consistent naming across frontend and backend
+  
         localStorage.setItem("spotify_access_token", access_token);
         localStorage.setItem("spotify_refresh_token", refresh_token);
         localStorage.setItem("spotify_token_expires_at", expiresAt.toString());
-
-        console.log("✅ Spotify Access Token:", access_token);
-
-        // ✅ Fetch Spotify user profile
+  
         const profileRes = await fetch("https://api.spotify.com/v1/me", {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
+          headers: { Authorization: `Bearer ${access_token}` },
         });
-
+  
         const profile = await profileRes.json();
         const { email, display_name, id: spotifyUserId } = profile;
         localStorage.setItem("spotify_user_id", spotifyUserId);
-
-        // ✅ Login or register with Moodify backend
+  
         const moodifyRes = await axios.post("https://moodify-i9qm.onrender.com/api/auth/spotify-login", {
           email,
           name: display_name || "Spotify User",
         });
-
+  
         const { token, username, userId } = moodifyRes.data;
         localStorage.setItem("token", token);
         localStorage.setItem("username", username);
         localStorage.setItem("user_id", userId);
-
+  
         navigate("/home");
       } catch (err) {
+        sessionStorage.removeItem("token_exchanged"); // so retry works
         console.error("❌ Token exchange failed:", err.response?.data || err.message);
         alert("Spotify authentication failed.");
         navigate("/");
       }
-      
     };
-
+  
     exchangeToken();
   }, [navigate]);
+  
 
   return <p style={{ textAlign: "center", color: "green" }}>Authenticating with Spotify...</p>;
 };
