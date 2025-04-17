@@ -100,9 +100,9 @@ exports.savePlaylist = async (req, res) => {
 
     const playlist = new Playlist({
       name,
-      songs,
-      mood,
-      userId, // ✅ fixed typo: was userID
+  mood,
+  userId,
+  tracks, // ✅ fixed typo: was userID
       createdByVoice: false,
     });
 

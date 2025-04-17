@@ -10,22 +10,14 @@ const songSchema = new mongoose.Schema({
 const playlistSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    songs: [songSchema],
+    tracks: [songSchema], // ✅ changed from "songs"
     mood: { type: String, required: true },
-    userId: { 
-      type: String,
-      required: true,
-    },
-    voiceCommand: {
-      type: String,
-      default: null,
-    },
-    createdByVoice: {
-      type: Boolean,
-      default: false,
-    },
+    userId: { type: String, required: true },
+    voiceCommand: { type: String, default: null },
+    createdByVoice: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
+
 
 module.exports = mongoose.model('Playlist', playlistSchema);
