@@ -132,10 +132,11 @@ const Callback = () => {
 
         navigate("/home");
       } catch (err) {
-        console.error("Authentication error:", err.response?.data || err);
+        console.error("❌ Token exchange failed:", err.response?.data || err.message);
         alert("Spotify authentication failed.");
         navigate("/");
       }
+      
     };
 
     exchangeToken();

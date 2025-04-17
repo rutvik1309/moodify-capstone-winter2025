@@ -122,13 +122,19 @@ const SpotifyLogin = () => {
   };
 
   const handleLogin = async () => {
-    // ✅ Reset all previous auth tokens and data
-    localStorage.clear();
-
+    // Clear old session data, but not everything
+    localStorage.removeItem("spotify_token");
+    localStorage.removeItem("spotify_refresh_token");
+    localStorage.removeItem("spotify_token_expires_at");
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("user_id");
+  
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
-    localStorage.setItem("code_verifier", codeVerifier);
-
+  
+    localStorage.setItem("code_verifier", codeVerifier); // ✅ Critical
+  
     const params = new URLSearchParams({
       response_type: "code",
       client_id: CLIENT_ID,
@@ -137,11 +143,10 @@ const SpotifyLogin = () => {
       code_challenge_method: "S256",
       code_challenge: codeChallenge,
     });
-
-    // ✅ Redirect to Spotify auth
+  
     window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
   };
-
+  
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h2>
