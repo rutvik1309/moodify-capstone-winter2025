@@ -1,4 +1,4 @@
-/* import React from "react";
+ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./home";
 import VoiceCommand from "./voicecommand";
@@ -27,9 +27,9 @@ const App = () => {
 };
 
 export default App;
-*/
 
-import React from "react";
+
+/* import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./home";
 import VoiceCommand from "./voicecommand";
@@ -49,7 +49,7 @@ const App = () => {
           <Route path="/" element={<SpotifyLogin />} />
           <Route path="/callback" element={<Callback />} />
 
-          {/* 🔒 Protect app routes */}
+          
           <Route
             path="/home"
             element={isAuthenticated ? <Home /> : <Navigate to="/" />}
@@ -67,7 +67,6 @@ const App = () => {
             element={isAuthenticated ? <Myplaylists /> : <Navigate to="/" />}
           />
 
-          {/* 🚫 Optional: 404 route */}
           <Route path="*" element={<p style={{ textAlign: "center" }}>404 - Page not found</p>} />
         </Routes>
       </div>
@@ -75,4 +74,5 @@ const App = () => {
   );
 };
 
-export default App;
+export default App; 
+*/
