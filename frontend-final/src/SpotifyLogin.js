@@ -126,7 +126,6 @@ const SpotifyLogin = () => {
     localStorage.removeItem("spotify_token");
     localStorage.removeItem("spotify_refresh_token");
     localStorage.removeItem("spotify_token_expires_at");
-    localStorage.removeItem("token");
     localStorage.removeItem("username");
     localStorage.removeItem("user_id");
   
