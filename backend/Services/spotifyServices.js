@@ -113,17 +113,25 @@ async function getTracksByMood(mood, userToken) {
 
     const tracks = searchRes.data.tracks.items;
     if (!tracks.length) return [];
+
+    // Step 2: Get audio features for those tracks
+    const trackIds = tracks.map((t) => t.id).join(",");
     const featuresRes = await axios.get("https://api.spotify.com/v1/audio-features", {
       headers: { Authorization: `Bearer ${userToken}` },
       params: { ids: trackIds },
     });
-    
-    // Step 3: Filter tracks based on mood criteria
-    const audioFeatures = featuresRes.data.audio_features;
+
+    // ✅ Step 3: Build a map of features by track ID
+    const featuresMap = {};
+    featuresRes.data.audio_features?.forEach((f) => {
+      if (f) featuresMap[f.id] = f;
+    });
+
     const moodCriteria = moodAudioMap[mood.toLowerCase()] || moodAudioMap.default;
 
-    const filteredTracks = tracks.filter((track, index) => {
-      const features = audioFeatures[index];
+    // ✅ Step 4: Filter tracks based on matching features
+    const filteredTracks = tracks.filter((track) => {
+      const features = featuresMap[track.id];
       return (
         features &&
         features.valence >= moodCriteria.valence[0] &&
@@ -133,7 +141,8 @@ async function getTracksByMood(mood, userToken) {
       );
     });
 
-    return filteredTracks.map(track => ({
+    // Step 5: Format response
+    return filteredTracks.map((track) => ({
       name: track.name,
       artist: track.artists[0]?.name || "Unknown",
       albumImage: track.album.images[0]?.url || "",
@@ -153,6 +162,7 @@ async function getTracksByMood(mood, userToken) {
 }
 
 module.exports = {
-  getTracksByMood, // ✅ Export only the one you use
+  getTracksByMood,
 };
+
 
