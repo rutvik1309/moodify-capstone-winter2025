@@ -1,7 +1,7 @@
 const Playlist = require('../models/Playlist');
 const User = require('../models/user');
 const { getTracksByMood } = require("../Services/spotifyServices");
-
+/*
 exports.createPlaylist = async (req, res) => {
   try {
     const { mood, name } = req.body;
@@ -38,9 +38,52 @@ exports.createPlaylist = async (req, res) => {
     console.error("🧨 Full error:", error); // 👈 super important
     res.status(500).json({ error: "Failed to generate playlist" });
   }
+}; */
+
+
+exports.createPlaylist = async (req, res) => {
+  try {
+    const { mood, name } = req.body;
+    const userId = req.userId;
+    const spotifyToken = req.headers["x-spotify-token"];
+
+    if (!spotifyToken) {
+      return res.status(400).json({ error: "Spotify token missing in request" });
+    }
+
+    if (!mood || !name) {
+      return res.status(400).json({ error: "Missing required fields: mood or name" });
+    }
+
+    console.log("🔁 Playlist creation requested by user:", userId);
+    console.log("🔤 Mood:", mood);
+    console.log("📛 Playlist Name:", name);
+
+    const tracks = await getTracksByMood(mood, spotifyToken);
+    console.log("🎵 Tracks fetched:", tracks?.length);
+
+    if (!tracks || tracks.length === 0) {
+      return res.status(404).json({ error: "No tracks found for the given mood" });
+    }
+
+    const newPlaylist = new Playlist({
+      name,
+      mood,
+      user: userId,
+      tracks,
+      createdAt: new Date(),
+    });
+
+    await newPlaylist.save();
+    console.log("✅ Playlist saved successfully.");
+
+    res.status(201).json({ playlist: newPlaylist });
+  } catch (error) {
+    console.error("🔥 Error generating playlist:", error.message);
+    console.error("🧨 Full error:", error);
+    res.status(500).json({ error: "Failed to generate playlist" });
+  }
 };
-
-
 
 
 
