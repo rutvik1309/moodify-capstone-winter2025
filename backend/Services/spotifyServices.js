@@ -105,23 +105,25 @@ async function getTracksByMood(mood, userToken) {
   try {
     console.log("🔐 Using user token:", userToken.slice(0, 25) + "...");
 
-    // Step 1: Search for tracks based on mood
+    // Step 1: Search tracks
     const searchRes = await axios.get("https://api.spotify.com/v1/search", {
       headers: { Authorization: `Bearer ${userToken}` },
       params: { q: mood, type: "track", limit: 20 },
     });
 
     const tracks = searchRes.data.tracks.items;
-    if (!tracks.length) return [];
+    if (!tracks.length) {
+      console.warn("❌ No tracks found in search");
+      return [];
+    }
 
-    // ✅ Step 2: Use correct endpoint for audio features
-    const trackIds = tracks.map((t) => t.id).join(",");
+    // Step 2: Get audio features
+    const trackIds = tracks.map(t => t.id).join(",");
     const featuresRes = await axios.get("https://api.spotify.com/v1/audio-features", {
       headers: { Authorization: `Bearer ${userToken}` },
       params: { ids: trackIds },
     });
 
-    // ✅ Step 3: Create a map of features
     const featuresMap = {};
     featuresRes.data.audio_features?.forEach((f) => {
       if (f) featuresMap[f.id] = f;
@@ -129,7 +131,7 @@ async function getTracksByMood(mood, userToken) {
 
     const moodCriteria = moodAudioMap[mood.toLowerCase()] || moodAudioMap.default;
 
-    // ✅ Step 4: Filter based on mood
+    // Step 3: Filter tracks
     const filteredTracks = tracks.filter((track) => {
       const features = featuresMap[track.id];
       return (
@@ -141,6 +143,10 @@ async function getTracksByMood(mood, userToken) {
       );
     });
 
+    if (!filteredTracks.length) {
+      console.warn("❌ No tracks matched mood filters");
+    }
+
     return filteredTracks.map((track) => ({
       name: track.name,
       artist: track.artists[0]?.name || "Unknown",
@@ -150,15 +156,13 @@ async function getTracksByMood(mood, userToken) {
     }));
   } catch (error) {
     console.error("🔥 Error in getTracksByMood:", error?.response?.data || error.message);
-    console.error("🧨 Full error:", error);
-
     if (error.response?.status === 403) {
-      console.error("🛑 Headers sent:", error.config.headers);
+      console.error("🛑 Headers sent:", error.config?.headers);
     }
-
     throw new Error("Failed to get mood-based tracks");
   }
 }
+
 
 module.exports = {
   getTracksByMood,
