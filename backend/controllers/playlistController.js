@@ -47,6 +47,43 @@ const Playlist = require('../models/Playlist');
 const User = require('../models/user');
 const { getTracksByMood } = require("../Services/spotifyServices");
 
+const createPlaylist = async (req, res) => {
+  try {
+    const { mood, name } = req.body;
+    const userId = req.userId;
+    const spotifyToken = req.headers["x-spotify-token"];
+
+    if (!spotifyToken) {
+      return res.status(400).json({ error: "Spotify token missing in request" });
+    }
+
+    if (!mood || !name) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const tracks = await getTracksByMood(mood, spotifyToken);
+
+    if (!tracks || tracks.length === 0) {
+      return res.status(404).json({ error: "No tracks found for this mood" });
+    }
+
+    const newPlaylist = new Playlist({
+      name,
+      mood,
+      tracks,
+      userId,
+      createdAt: new Date()
+    });
+
+    await newPlaylist.save();
+    console.log("✅ Playlist created via legacy route.");
+    res.status(201).json({ playlist: newPlaylist });
+  } catch (error) {
+    console.error("❌ createPlaylist failed:", error.message);
+    res.status(500).json({ error: "Failed to generate playlist" });
+  }
+};
+
 // 🏏 Preview playlist based on mood (no saving)
 exports.previewPlaylist = async (req, res) => {
   try {
