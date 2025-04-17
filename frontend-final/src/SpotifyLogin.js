@@ -95,13 +95,14 @@ const SpotifyLogin = () => {
         "user-read-email",
         "user-read-private",
         "user-top-read",
-        "user-library-read",          // ✅ NEW: to access audio features of saved tracks
         "user-read-playback-state",
         "user-modify-playback-state",
+        "user-library-read",          
         "streaming",
         "playlist-modify-public",
         "playlist-modify-private"
       ];
+      
       
 
   const generateCodeVerifier = (length = 128) => {
