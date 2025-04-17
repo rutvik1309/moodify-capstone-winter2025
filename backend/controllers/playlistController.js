@@ -69,10 +69,11 @@ exports.createPlaylist = async (req, res) => {
     const newPlaylist = new Playlist({
       name,
       mood,
-      user: userId,
+      userId, // ✅ Correct field name
       tracks,
       createdAt: new Date(),
     });
+    
 
     await newPlaylist.save();
     console.log("✅ Playlist saved successfully.");
