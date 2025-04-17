@@ -122,13 +122,6 @@ const SpotifyLogin = () => {
   };
 
   const handleLogin = async () => {
-    // Clear old session data, but not everything
-    localStorage.removeItem("spotify_token");
-    localStorage.removeItem("spotify_refresh_token");
-    localStorage.removeItem("spotify_token_expires_at");
-    localStorage.removeItem("username");
-    localStorage.removeItem("user_id");
-  
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
   
