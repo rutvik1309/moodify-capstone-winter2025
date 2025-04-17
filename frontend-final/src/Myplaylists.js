@@ -80,17 +80,21 @@ const MyPlaylists = () => {
   
      
 
-              {Array.isArray(playlist.tracks) && playlist.tracks.length > 0 ? (
-    playlist.tracks.map((track, i) => (
-      <li key={i}>
-        <a href={track.url} target="_blank" rel="noopener noreferrer">
-          {track.name} - {track.artist}
-        </a>
-                    </li>
-                  ))
-                ) : (
-                  <li>No songs in this playlist.</li>
-                )}
+              {(() => {
+  const items = playlist.tracks || playlist.songs || [];
+  if (!Array.isArray(items) || items.length === 0) {
+    return <li>No songs in this playlist.</li>;
+  }
+
+  return items.map((track, i) => (
+    <li key={i}>
+      <a href={track.url} target="_blank" rel="noopener noreferrer">
+        {track.name} - {track.artist}
+      </a>
+    </li>
+  ));
+})()}
+
               </ul>
               <button
                 onClick={() => handleDelete(playlist._id)}
