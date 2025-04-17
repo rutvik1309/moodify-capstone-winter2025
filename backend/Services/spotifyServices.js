@@ -99,61 +99,38 @@ module.exports = {
 */
 
 const axios = require("axios");
-const moodAudioMap = require("./utils/moodMap");
+const axios = require("axios");
+
+// 🎯 Map mood input to Spotify search query
+function moodToQuery(moodInput) {
+  const mood = moodInput.trim().toLowerCase();
+  const moodQueryMap = {
+    happy: "feel good hits",
+    sad: "sad songs",
+    romantic: "love songs",
+    relaxed: "chill vibes",
+    party: "party anthems",
+    workout: "gym motivation",
+    study: "study focus",
+    angry: "heavy metal",
+    motivated: "motivational",
+    sleepy: "sleep music",
+  };
+  return moodQueryMap[mood] || "chill hits";
+}
 
 async function getTracksByMood(mood, userToken) {
   try {
-    console.log("🔐 Using user token:", userToken.slice(0, 25) + "...");
+    const query = moodToQuery(mood);
+    console.log(`🎧 Searching Spotify for: ${query}`);
 
-    // Step 1: Search tracks
     const searchRes = await axios.get("https://api.spotify.com/v1/search", {
       headers: { Authorization: `Bearer ${userToken}` },
-      params: { q: mood, type: "track", limit: 20 },
+      params: { q: query, type: "track", limit: 20 },
     });
 
     const tracks = searchRes.data.tracks.items;
-    if (!tracks.length) {
-      console.warn("❌ No tracks found in search");
-      return [];
-    }
-
-    // Step 2: Get audio features
-    const trackIds = tracks.map(track => track.id).join(",");
-
-    const featuresRes = await axios.get("https://api.spotify.com/v1/audio-features", {
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        "Content-Type": "application/json",
-      },
-      params: {
-        ids: trackIds,
-      },
-    });
-    
-    const featuresMap = {};
-    featuresRes.data.audio_features?.forEach((f) => {
-      if (f) featuresMap[f.id] = f;
-    });
-
-    const moodCriteria = moodAudioMap[mood.toLowerCase()] || moodAudioMap.default;
-
-    // Step 3: Filter tracks
-    const filteredTracks = tracks.filter((track) => {
-      const features = featuresMap[track.id];
-      return (
-        features &&
-        features.valence >= moodCriteria.valence[0] &&
-        features.valence <= moodCriteria.valence[1] &&
-        features.energy >= moodCriteria.energy[0] &&
-        features.energy <= moodCriteria.energy[1]
-      );
-    });
-
-    if (!filteredTracks.length) {
-      console.warn("❌ No tracks matched mood filters");
-    }
-
-    return filteredTracks.map((track) => ({
+    return tracks.map((track) => ({
       name: track.name,
       artist: track.artists[0]?.name || "Unknown",
       albumImage: track.album.images[0]?.url || "",
@@ -162,14 +139,9 @@ async function getTracksByMood(mood, userToken) {
     }));
   } catch (error) {
     console.error("🔥 Error in getTracksByMood:", error?.response?.data || error.message);
-    if (error.response?.status === 403) {
-      console.error("🛑 Headers sent:", error.config?.headers);
-    }
     throw new Error("Failed to get mood-based tracks");
   }
 }
 
+module.exports = { getTracksByMood };
 
-module.exports = {
-  getTracksByMood,
-};
