@@ -11,75 +11,58 @@ const Recommendations = () => {
         setMessage("Please log in with Spotify first.");
         return;
       }
-
+  
       try {
-        // Step 1: Fetch top tracks
-        const topTracksRes = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=5", {
+        const topTracksRes = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=10", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+  
         const topTracksData = await topTracksRes.json();
         const rawSeeds = topTracksData.items?.map((track) => track.id) || [];
-
-        if (rawSeeds.length === 0) {
-          setMessage("No top tracks found. Listen to more songs on Spotify.");
-          return;
-        }
-
+  
         const getValidSeedTracks = async (trackIds, token) => {
           const valid = [];
-        
           for (const id of trackIds) {
-            const res = await fetch(
-              `https://api.spotify.com/v1/recommendations?seed_tracks=${id}&limit=1`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-        
+            const res = await fetch(`https://api.spotify.com/v1/recommendations?seed_tracks=${id}&limit=1`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+  
             if (res.ok) {
               const data = await res.json();
-              if (data.tracks && data.tracks.length > 0) {
-                valid.push(id);
-              }
+              if (data.tracks?.length > 0) valid.push(id);
             }
-        
-            if (valid.length >= 3) break; // ✅ Limit to 3 valid seeds
+  
+            if (valid.length >= 3) break;
           }
-        
-          // ✅ Fallback to genre-based recommendations if none are valid
+  
+          // Fallback to genre
           if (valid.length === 0) {
-            return ["pop", "rock", "edm"];
+            return ['pop', 'rock', 'edm', 'hip-hop', 'indie', 'jazz', 'classical', 'dance', 'country', 'chill', 'acoustic', 'ambient']; // ✅ only 3 allowed genre seeds
           }
-        
+  
           return valid;
         };
-        
-        // ✅ Use the correct function name here
+  
         const validSeedTracks = await getValidSeedTracks(rawSeeds, token);
-        console.log("✅ Valid seeds:", validSeedTracks);
-        
-        if (!validSeedTracks || validSeedTracks.length === 0) {
-          setMessage("No valid top tracks for generating recommendations. Try again later.");
-          return;
-        }
-        
-        // Step 3: Fetch final recommendations
-        const recRes = await fetch(
-          `https://api.spotify.com/v1/recommendations?seed_tracks=${validSeedTracks.join(",")}&limit=10`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
+        const isGenreSeed = typeof validSeedTracks[0] === "string" && validSeedTracks[0].length <= 10;
+  
+        const seedType = isGenreSeed ? "seed_genres" : "seed_tracks";
+        const url = `https://api.spotify.com/v1/recommendations?${seedType}=${validSeedTracks.join(",")}&limit=10`;
+  
+        const recRes = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
         if (!recRes.ok) {
           const text = await recRes.text();
           console.error("❌ Recommendations failed:", text);
           setMessage("Failed to load recommendations. Spotify token might be expired.");
           return;
         }
-
+  
         const recData = await recRes.json();
         setRecommendations(recData.tracks || []);
-        if (!recData.tracks || recData.tracks.length === 0) {
+        if (!recData.tracks?.length) {
           setMessage("No recommendations available at the moment.");
         }
       } catch (err) {
@@ -87,9 +70,10 @@ const Recommendations = () => {
         setMessage("Error loading recommendations. Try refreshing.");
       }
     };
-
+  
     fetchRecommendations();
   }, []);
+  
 
   return (
     <div style={{ padding: "20px" }}>
