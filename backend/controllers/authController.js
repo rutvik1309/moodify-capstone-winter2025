@@ -30,26 +30,32 @@ exports.spotifyLogin = async (req, res) => {
 };
 exports.exchangeSpotifyToken = async (req, res) => {
   const { code, code_verifier } = req.body;
-  const redirect_uri =  "https://moodify-i9qm.onrender.com/callback";
 
   try {
-    const response = await axios.post("https://accounts.spotify.com/api/token", new URLSearchParams({
+    const params = new URLSearchParams({
       client_id: process.env.SPOTIFY_CLIENT_ID,
       grant_type: "authorization_code",
       code,
-      redirect_uri,
+      redirect_uri: process.env.SPOTIFY_REDIRECT_URI,
       code_verifier,
-    }), {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
     });
 
-    res.json(response.data); // ✅ includes access_token, refresh_token
+    const tokenRes = await axios.post("https://accounts.spotify.com/api/token", params, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+
+    res.status(200).json(tokenRes.data);
   } catch (err) {
-    console.error("Token exchange failed", err.response?.data || err);
-    res.status(500).json({ error: "Token exchange failed" });
+    console.error("❌ Spotify token exchange failed:", err.response?.data || err.message);
+    res.status(500).json({ error: "Spotify token exchange failed" });
   }
 };
+module.exports = {
+  spotifyLogin,
+  exchangeSpotifyToken, // ✅ Add this
+};
+
 
 
