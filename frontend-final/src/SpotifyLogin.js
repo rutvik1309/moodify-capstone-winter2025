@@ -91,16 +91,18 @@ const SpotifyLogin = () => {
       ? "http://localhost:3000/callback"
       : "https://moodify-i9qm.onrender.com/callback";
 
-  const SCOPES = [
-    "user-read-email",
-    "user-read-private",
-    "user-top-read",
-    "user-read-playback-state",
-    "user-modify-playback-state",
-    "streaming",
-    "playlist-modify-public",
-    "playlist-modify-private"
-  ];
+      const SCOPES = [
+        "user-read-email",
+        "user-read-private",
+        "user-top-read",
+        "user-library-read",          // ✅ NEW: to access audio features of saved tracks
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "streaming",
+        "playlist-modify-public",
+        "playlist-modify-private"
+      ];
+      
 
   const generateCodeVerifier = (length = 128) => {
     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
