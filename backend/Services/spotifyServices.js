@@ -99,7 +99,6 @@ module.exports = {
 */
 
 const axios = require("axios");
-const axios = require("axios");
 
 // 🎯 Map mood input to Spotify search query
 function moodToQuery(moodInput) {
