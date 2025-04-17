@@ -44,26 +44,26 @@ const Recommendations = () => {
               }
             }
         
-            if (valid.length >= 3) break; // ✅ Limit to 3
+            if (valid.length >= 3) break; // ✅ Limit to 3 valid seeds
           }
         
-          // ✅ If no valid tracks, fallback to genres
+          // ✅ Fallback to genre-based recommendations if none are valid
           if (valid.length === 0) {
-            return ["pop", "rock", "edm"]; // or any preferred genres
+            return ["pop", "rock", "edm"];
           }
         
           return valid;
         };
         
-
-        const validSeedTracks = await getValidSeeds(rawSeeds);
+        // ✅ Use the correct function name here
+        const validSeedTracks = await getValidSeedTracks(rawSeeds, token);
         console.log("✅ Valid seeds:", validSeedTracks);
-
-        if (validSeedTracks.length === 0) {
+        
+        if (!validSeedTracks || validSeedTracks.length === 0) {
           setMessage("No valid top tracks for generating recommendations. Try again later.");
           return;
         }
-
+        
         // Step 3: Fetch final recommendations
         const recRes = await fetch(
           `https://api.spotify.com/v1/recommendations?seed_tracks=${validSeedTracks.join(",")}&limit=10`,
