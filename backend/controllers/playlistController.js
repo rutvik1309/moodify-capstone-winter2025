@@ -47,7 +47,7 @@ const Playlist = require('../models/Playlist');
 const User = require('../models/user');
 const { getTracksByMood } = require("../Services/spotifyServices");
 
-// 🎿 Preview playlist based on mood (no saving)
+// 🏏 Preview playlist based on mood (no saving)
 exports.previewPlaylist = async (req, res) => {
   try {
     const { mood } = req.body;
@@ -61,7 +61,7 @@ exports.previewPlaylist = async (req, res) => {
       return res.status(400).json({ error: "Mood is required" });
     }
 
-    console.log("🎧 Generating preview for:", mood);
+    console.log("🎿 Generating preview for:", mood);
     const tracks = await getTracksByMood(mood, spotifyToken);
 
     if (!tracks || tracks.length === 0) {
@@ -75,7 +75,7 @@ exports.previewPlaylist = async (req, res) => {
   }
 };
 
-// 📅 Save Playlist manually after preview
+// 🗕 Save Playlist manually after preview
 exports.savePlaylist = async (req, res) => {
   try {
     const { name, mood, tracks, userId, createdByVoice, voiceCommand } = req.body;
@@ -129,7 +129,7 @@ exports.deletePlaylistById = async (req, res) => {
   }
 };
 
-// 🧹 Delete all playlists for a user
+// 🩹 Delete all playlists for a user
 exports.clearAllPlaylists = async (req, res) => {
   try {
     await Playlist.deleteMany({ userId: req.params.userId });
@@ -137,4 +137,13 @@ exports.clearAllPlaylists = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Failed to clear playlists" });
   }
+};
+
+module.exports = {
+  previewPlaylist,        // 👀 Generate playlist preview only
+  savePlaylist,           // 💾 Save playlist after confirmation
+  createPlaylist,         // (Optional legacy method to generate and save directly)
+  getUserPlaylists,       // 📄 Fetch user's playlists
+  deletePlaylistById,     // ❌ Delete by ID
+  clearAllPlaylists       // 🧹 Clear all by userId
 };
