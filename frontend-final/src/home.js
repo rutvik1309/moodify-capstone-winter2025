@@ -78,7 +78,7 @@ const Home = () => {
   
       const response = await axios.post(
         "https://moodify-i9qm.onrender.com/api/playlist/generate",
-        payload,
+        { mood }, // only send mood
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,6 +86,10 @@ const Home = () => {
           },
         }
       );
+      
+      console.log("🎧 Preview playlist response:", response.data);
+      setPlaylist(response.data?.songs || []);
+      
   
       console.log("Playlist response:", response.data);
       setPlaylist(response.data?.playlist?.songs || []);

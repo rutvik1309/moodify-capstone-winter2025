@@ -1,7 +1,8 @@
+/* 
 const Playlist = require('../models/Playlist');
 const User = require('../models/user');
 const { getTracksByMood } = require("../Services/spotifyServices");
-/*
+
 exports.createPlaylist = async (req, res) => {
   try {
     const { mood, name } = req.body;
@@ -41,84 +42,76 @@ exports.createPlaylist = async (req, res) => {
 }; */
 
 
-exports.createPlaylist = async (req, res) => {
+// controllers/playlistController.js
+const Playlist = require('../models/Playlist');
+const User = require('../models/user');
+const { getTracksByMood } = require("../Services/spotifyServices");
+
+// 🎧 Preview playlist based on mood (no saving)
+exports.previewPlaylist = async (req, res) => {
   try {
-    const { mood, name } = req.body;
-    const userId = req.userId;
+    const { mood } = req.body;
     const spotifyToken = req.headers["x-spotify-token"];
 
     if (!spotifyToken) {
       return res.status(400).json({ error: "Spotify token missing in request" });
     }
 
-    if (!mood || !name) {
-      return res.status(400).json({ error: "Missing required fields: mood or name" });
+    if (!mood) {
+      return res.status(400).json({ error: "Mood is required" });
     }
 
-    console.log("🔁 Playlist creation requested by user:", userId);
-    console.log("🔤 Mood:", mood);
-    console.log("📛 Playlist Name:", name);
-
+    console.log("🎧 Generating preview for:", mood);
     const tracks = await getTracksByMood(mood, spotifyToken);
-    console.log("🎵 Tracks fetched:", tracks?.length);
 
     if (!tracks || tracks.length === 0) {
-      return res.status(404).json({ error: "No tracks found for the given mood" });
+      return res.status(404).json({ error: "No tracks found for this mood" });
+    }
+
+    res.status(200).json({ tracks });
+  } catch (error) {
+    console.error("🔥 Preview failed:", error.message);
+    res.status(500).json({ error: "Failed to generate preview" });
+  }
+};
+
+// 💾 Save Playlist manually after preview
+exports.savePlaylist = async (req, res) => {
+  try {
+    const { name, mood, tracks, userId, createdByVoice, voiceCommand } = req.body;
+
+    if (!name || !mood || !tracks || !userId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
     const newPlaylist = new Playlist({
       name,
       mood,
-      userId, // ✅ Correct field name
       tracks,
-      createdAt: new Date(),
+      userId,
+      createdByVoice: createdByVoice || false,
+      voiceCommand: voiceCommand || null,
+      createdAt: new Date()
     });
-    
 
     await newPlaylist.save();
-    console.log("✅ Playlist saved successfully.");
-
-    res.status(201).json({ playlist: newPlaylist });
+    console.log("✅ Playlist saved.");
+    res.status(201).json({ message: "Playlist saved successfully", playlist: newPlaylist });
   } catch (error) {
-    console.error("🔥 Error generating playlist:", error.message);
-    console.error("🧨 Full error:", error);
-    res.status(500).json({ error: "Failed to generate playlist" });
-  }
-};
-
-
-
-// 💾 Save Playlist manually
-exports.savePlaylist = async (req, res) => {
-  const { name, songs, mood, userId } = req.body;
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const playlist = new Playlist({
-      name,
-  mood,
-  userId,
-  tracks, // ✅ fixed typo: was userID
-      createdByVoice: false,
-    });
-
-    await playlist.save();
-    res.status(201).json({ message: 'Playlist saved successfully.', playlist });
-  } catch (error) {
-    console.error('Failed to save playlist:', error.message);
-    console.log("Incoming save request:", req.body);
-    res.status(500).json({ error: 'Failed to save playlist.' });
+    console.error("❌ Save failed:", error.message);
+    res.status(500).json({ error: "Failed to save playlist" });
   }
 };
 
 // 📄 Get all playlists for a user
 exports.getUserPlaylists = async (req, res) => {
   try {
-    const playlists = await Playlist.find({ userId: req.params.userId }); // ✅ use userId
+    const playlists = await Playlist.find({ userId: req.params.userId });
     res.status(200).json(playlists);
   } catch (err) {
     console.error("Error fetching user playlists:", err);
@@ -139,7 +132,7 @@ exports.deletePlaylistById = async (req, res) => {
 // 🧹 Delete all playlists for a user
 exports.clearAllPlaylists = async (req, res) => {
   try {
-    await Playlist.deleteMany({ userId: req.params.userId }); // ✅ corrected from 'user'
+    await Playlist.deleteMany({ userId: req.params.userId });
     res.status(200).json({ message: "All playlists cleared." });
   } catch (err) {
     res.status(500).json({ error: "Failed to clear playlists" });

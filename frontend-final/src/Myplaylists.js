@@ -47,9 +47,9 @@ const MyPlaylists = () => {
 
   const handleClearAll = async () => {
     if (!window.confirm("Are you sure you want to delete all playlists?")) return;
-
+  
     try {
-      await axios.delete(`https://moodify-i9qm.onrender.com/${userId}/clear`, {
+      await axios.delete(`https://moodify-i9qm.onrender.com/api/playlist/user/${userId}/clear`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPlaylists([]);
@@ -57,6 +57,7 @@ const MyPlaylists = () => {
       console.error("Failed to clear playlists:", err);
     }
   };
+  
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
